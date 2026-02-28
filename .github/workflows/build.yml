@@ -1,0 +1,62 @@
+name: Build Dev Container Images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - images/**
+  workflow_dispatch:
+    inputs:
+      image:
+        description: "Image to build (e.g. dotnet-service). Leave blank to build all."
+        required: false
+
+env:
+  REGISTRY: ghcr.io
+  ORG: dever-labs
+
+jobs:
+  # Detect which image directories changed so we only rebuild what's needed.
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      images: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            dotnet-service:
+              - images/dotnet-service/**
+
+  build:
+    name: Build ${{ matrix.image }}
+    needs: changes
+    if: ${{ needs.changes.outputs.images != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: ${{ fromJSON(needs.changes.outputs.images) }}
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push ${{ matrix.image }}
+        uses: devcontainers/ci@v0.3
+        with:
+          subFolder: images/${{ matrix.image }}
+          imageName: ${{ env.REGISTRY }}/${{ env.ORG }}/devcontainers/${{ matrix.image }}
+          cacheFrom: ${{ env.REGISTRY }}/${{ env.ORG }}/devcontainers/${{ matrix.image }}
+          push: always

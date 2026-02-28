@@ -1,0 +1,10 @@
+# Dependency updates for devcontainer features
+# devcontainer.json is JSON-with-comments — dependabot doesn't natively parse it,
+# so feature version bumps are handled manually or via Renovate.
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
