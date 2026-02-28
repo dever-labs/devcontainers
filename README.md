@@ -6,11 +6,11 @@ Centralised devcontainer images for dever-labs. All service repos reference imag
 
 | Image | Contents | Used by |
 |-------|----------|---------|
-| [`dotnet-service`](images/dotnet-service/) | .NET 10 SDK, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | All .NET service repos |
-| [`frontend`](images/frontend/) | Node.js LTS, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | React/Vue/Angular SPA repos |
-| [`python-service`](images/python-service/) | Python 3.13, uv, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Python API and data script repos |
-| [`go-service`](images/go-service/) | Go latest, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Go microservice and CLI repos |
-| [`infra`](images/infra/) | Terraform, Azure CLI, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Infrastructure and platform repos |
+| [`dotnet-service`](images/dotnet-service/.devcontainer/) | .NET 10 SDK, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | All .NET service repos |
+| [`frontend`](images/frontend/.devcontainer/) | Node.js LTS, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | React/Vue/Angular SPA repos |
+| [`python-service`](images/python-service/.devcontainer/) | Python 3.13, uv, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Python API and data script repos |
+| [`go-service`](images/go-service/.devcontainer/) | Go latest, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Go microservice and CLI repos |
+| [`infra`](images/infra/.devcontainer/) | Terraform, Azure CLI, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Infrastructure and platform repos |
 
 ## How it works
 

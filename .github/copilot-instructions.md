@@ -5,7 +5,7 @@ Each image is defined as a `devcontainer.json` under `images/<name>/` and built 
 
 ## Repository structure
 
-- `images/<name>/devcontainer.json` — devcontainer feature definition for each image
+- `images/<name>/.devcontainer/devcontainer.json` — devcontainer feature definition for each image
 - `.github/workflows/build.yml` — builds changed images on push to main, pushes to GHCR
 
 ## Conventions
