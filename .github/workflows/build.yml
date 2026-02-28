@@ -3,8 +3,6 @@ name: Build Dev Container Images
 on:
   push:
     branches: [main]
-    paths:
-      - images/**
   workflow_dispatch:
     inputs:
       image:
@@ -24,8 +22,6 @@ jobs:
       images: ${{ steps.detect.outputs.images }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          fetch-depth: 2
 
       - name: Detect changed images
         id: detect
@@ -38,9 +34,8 @@ jobs:
               IMAGES=$(ls images/ | jq -R -s -c 'split("\n") | map(select(length > 0))')
             fi
           else
-            IMAGES=$(git diff --name-only HEAD~1 HEAD \
-              | grep '^images/' | cut -d'/' -f2 | sort -u \
-              | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            # On push to main always rebuild all images — ensures every commit is verified
+            IMAGES=$(ls images/ | jq -R -s -c 'split("\n") | map(select(length > 0))')
           fi
           echo "images=$IMAGES" >> $GITHUB_OUTPUT
 
