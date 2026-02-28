@@ -1,13 +1,17 @@
 {
-  // Definition for the go-service devcontainer image.
+  // Definition for the infra devcontainer image.
   // This file is used by CI to build and push the image to GHCR.
   // Service repos reference the resulting image — they do not build it themselves.
-  "name": "go-service",
+  "name": "infra-dev",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
 
   "features": {
-    // Go — pin to major.minor so patch updates flow automatically
-    "ghcr.io/devcontainers/features/go:1": {
+    // Terraform — IaC for cloud infrastructure
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "version": "latest"
+    },
+    // Azure CLI — primary cloud provider
+    "ghcr.io/devcontainers/features/azure-cli:1": {
       "version": "latest"
     },
     // Docker-in-Docker — required for kind cluster nodes inside the container

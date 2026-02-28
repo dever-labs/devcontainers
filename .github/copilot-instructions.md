@@ -13,7 +13,7 @@ Each image is defined as a `devcontainer.json` under `images/<name>/` and built 
 - Base image: `mcr.microsoft.com/devcontainers/base:ubuntu-24.04`
 - Feature versions: pin to major.minor (e.g. `"version": "10.0"`) so patch updates flow automatically
 - Never add repo-specific tooling here — keep images generic for their persona (dotnet-service, frontend, etc.)
-- All images are pushed to `ghcr.io/dever-labs/devcontainers/<name>:latest`
+- All images are pushed to `ghcr.io/dever-labs/devcontainers/<name>:latest` (e.g. `dotnet-dev`, `frontend-dev`)
 
 ## When adding or modifying features
 

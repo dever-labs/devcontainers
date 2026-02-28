@@ -1,15 +1,15 @@
 {
-  // Definition for the python-service devcontainer image.
+  // Definition for the frontend devcontainer image.
   // This file is used by CI to build and push the image to GHCR.
   // Service repos reference the resulting image — they do not build it themselves.
-  "name": "python-service",
+  "name": "frontend-dev",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
 
   "features": {
-    // Python — pin to major.minor so patch updates flow automatically
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.13",
-      "installTools": true
+    // Node.js LTS with corepack — enables pnpm via `corepack enable pnpm`
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts",
+      "nodeGypDependencies": false
     },
     // Docker-in-Docker — required for kind cluster nodes inside the container
     "ghcr.io/devcontainers/features/docker-in-docker:2": {

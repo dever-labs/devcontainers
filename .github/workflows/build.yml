@@ -28,16 +28,16 @@ jobs:
         id: filter
         with:
           filters: |
-            dotnet-service:
-              - images/dotnet-service/**
-            frontend:
-              - images/frontend/**
-            python-service:
-              - images/python-service/**
-            go-service:
-              - images/go-service/**
-            infra:
-              - images/infra/**
+            dotnet-dev:
+              - images/dotnet-dev/**
+            frontend-dev:
+              - images/frontend-dev/**
+            python-dev:
+              - images/python-dev/**
+            go-dev:
+              - images/go-dev/**
+            infra-dev:
+              - images/infra-dev/**
 
   build:
     name: Build ${{ matrix.image }}

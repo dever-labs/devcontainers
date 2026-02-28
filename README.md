@@ -6,22 +6,22 @@ Centralised devcontainer images for dever-labs. All service repos reference imag
 
 | Image | Contents | Used by |
 |-------|----------|---------|
-| [`dotnet-service`](images/dotnet-service/.devcontainer/) | .NET 10 SDK, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | All .NET service repos |
-| [`frontend`](images/frontend/.devcontainer/) | Node.js LTS, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | React/Vue/Angular SPA repos |
-| [`python-service`](images/python-service/.devcontainer/) | Python 3.13, uv, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Python API and data script repos |
-| [`go-service`](images/go-service/.devcontainer/) | Go latest, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Go microservice and CLI repos |
-| [`infra`](images/infra/.devcontainer/) | Terraform, Azure CLI, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Infrastructure and platform repos |
+| [`dotnet-dev`](images/dotnet-dev/.devcontainer/) | .NET 10 SDK, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | All .NET repos |
+| [`frontend-dev`](images/frontend-dev/.devcontainer/) | Node.js LTS, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | React/Vue/Angular SPA repos |
+| [`python-dev`](images/python-dev/.devcontainer/) | Python 3.13, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Python API and data script repos |
+| [`go-dev`](images/go-dev/.devcontainer/) | Go latest, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Go microservice and CLI repos |
+| [`infra-dev`](images/infra-dev/.devcontainer/) | Terraform, Azure CLI, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Infrastructure and platform repos |
 
 ## How it works
 
 ```
-images/dotnet-service/devcontainer.json   ← defines base + features
+images/dotnet-dev/.devcontainer/devcontainer.json   ← defines base + features
          │
          ▼ (CI builds on push to main)
-ghcr.io/dever-labs/devcontainers/dotnet-service:latest
+ghcr.io/dever-labs/devcontainers/dotnet-dev:latest
          │
          ▼ (service repos reference)
-.devcontainer/devcontainer.json → "image": "ghcr.io/dever-labs/devcontainers/dotnet-service:latest"
+.devcontainer/devcontainer.json → "image": "ghcr.io/dever-labs/devcontainers/dotnet-dev:latest"
 ```
 
 CI rebuilds only the image(s) whose folder changed. Each push to `main` that touches `images/dotnet-service/**` triggers a fresh build with layer caching.
