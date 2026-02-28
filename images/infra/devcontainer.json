@@ -1,14 +1,18 @@
 {
-  // Definition for the dotnet-service devcontainer image.
+  // Definition for the infra devcontainer image.
   // This file is used by CI to build and push the image to GHCR.
   // Service repos reference the resulting image — they do not build it themselves.
-  "name": "dotnet-service",
+  "name": "infra",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
 
   "features": {
-    // .NET SDK — pin to major.minor so patch updates flow automatically
-    "ghcr.io/devcontainers/features/dotnet:2": {
-      "version": "10.0"
+    // Terraform — IaC for cloud infrastructure
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "version": "latest"
+    },
+    // Azure CLI — primary cloud provider
+    "ghcr.io/devcontainers/features/azure-cli:1": {
+      "version": "latest"
     },
     // Docker-in-Docker — required for kind cluster nodes inside the container
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
