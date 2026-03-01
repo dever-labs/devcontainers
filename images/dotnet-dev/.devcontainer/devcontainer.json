@@ -24,6 +24,8 @@
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
 
+  "postStartCommand": "minikube status || minikube start --driver=docker",
+
   "customizations": {
     "vscode": {
       "extensions": [
