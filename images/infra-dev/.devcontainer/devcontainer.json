@@ -24,6 +24,8 @@
       "helm": "latest",
       "minikube": "latest"
     },
+    // ArgoCD CLI — for interacting with ArgoCD deployments
+    "ghcr.io/devcontainers-contrib/features/argo-cd:1": {},
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
