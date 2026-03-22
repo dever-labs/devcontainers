@@ -1,34 +1,40 @@
 {
   // Definition for the infra devcontainer image.
   // This file is used by CI to build and push the image to GHCR.
-  // Service repos reference the resulting image — they do not build it themselves.
+  // Service repos reference the resulting image -- they do not build it themselves.
   "name": "infra-dev",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
 
   "features": {
-    // Terraform — IaC for cloud infrastructure
+    // Terraform -- IaC for cloud infrastructure
     "ghcr.io/devcontainers/features/terraform:1": {
       "version": "latest"
     },
-    // Azure CLI — primary cloud provider
+    // Azure CLI -- primary cloud provider
     "ghcr.io/devcontainers/features/azure-cli:1": {
       "version": "latest"
     },
-    // Docker-in-Docker — required for kind cluster nodes inside the container
+    // Docker-in-Docker -- required for kind cluster nodes inside the container
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "version": "latest"
     },
-    // kubectl + Helm + minikube — local cluster for developing against team helm charts
+    // kubectl + Helm + minikube -- local cluster for developing against team helm charts
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
       "version": "latest",
       "helm": "latest",
       "minikube": "latest"
     },
-    // ArgoCD CLI — for interacting with ArgoCD deployments
+    // ArgoCD CLI -- for interacting with ArgoCD deployments
     "ghcr.io/devcontainers-contrib/features/argo-cd:1": {},
     "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    // AWS CLI -- multi-cloud and AWS resource management for Aragorn agent
+    "ghcr.io/devcontainers-contrib/features/aws-cli:1": {},
+    // Google Cloud SDK -- GCP resource management for Aragorn agent
+    "ghcr.io/devcontainers-contrib/features/google-cloud-sdk:1": {}
   },
+
+  "onCreateCommand": "npm install -g @openai/codex vercel && curl -fsSL https://install.openclaw.ai | sh",
 
   "postStartCommand": "minikube status || minikube start --driver=docker",
 
@@ -36,7 +42,9 @@
     "vscode": {
       "extensions": [
         "github.copilot",
-        "github.copilot-chat"
+        "github.copilot-chat",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "hashicorp.terraform"
       ]
     }
   }
