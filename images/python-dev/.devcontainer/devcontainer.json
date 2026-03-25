@@ -25,6 +25,8 @@
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
 
+  "onCreateCommand": "curl -fsSL https://install.openclaw.ai | sh",
+
   "postStartCommand": "minikube status || minikube start --driver=docker",
 
   "customizations": {
