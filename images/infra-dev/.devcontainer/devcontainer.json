@@ -18,23 +18,19 @@
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "version": "latest"
     },
-    // kubectl + Helm + minikube -- local cluster for developing against team helm charts
+    // kubectl + Helm -- cluster management and chart deployments
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
       "version": "latest",
       "helm": "latest",
       "minikube": "latest"
     },
-    // ArgoCD CLI -- for interacting with ArgoCD deployments
-    "ghcr.io/devcontainers-contrib/features/argo-cd:1": {},
     "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    // AWS CLI -- multi-cloud and AWS resource management for Aragorn agent
-    "ghcr.io/devcontainers-contrib/features/aws-cli:1": {},
-    // Google Cloud SDK -- GCP resource management for Aragorn agent
-    "ghcr.io/devcontainers-contrib/features/google-cloud-sdk:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {}
   },
 
-  "onCreateCommand": "npm install -g @openai/codex vercel && curl -fsSL https://install.openclaw.ai | sh",
+  // AWS CLI, GCP SDK and ArgoCD CLI installed via shell — devcontainers-contrib features
+  // are unreliable in CI (access/permissions issues).
+  "onCreateCommand": "curl -fsSL https://install.openclaw.ai | sh && curl -fsSL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip && unzip -q /tmp/awscliv2.zip -d /tmp && sudo /tmp/aws/install && rm -rf /tmp/awscliv2.zip /tmp/aws && curl -fsSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=/usr/local/gcloud && ln -sf /usr/local/gcloud/google-cloud-sdk/bin/gcloud /usr/local/bin/gcloud && curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64 && chmod +x /usr/local/bin/argocd",
 
   "postStartCommand": "minikube status || minikube start --driver=docker",
 
