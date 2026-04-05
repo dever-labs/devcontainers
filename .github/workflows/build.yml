@@ -76,4 +76,4 @@ jobs:
             /orgs/${{ env.ORG }}/packages/container/devcontainers%2F${{ matrix.image }} \
             -f visibility=public
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_PACKAGES_PAT }}
+          GH_TOKEN: ${{ secrets.PACKAGES_PAT }}

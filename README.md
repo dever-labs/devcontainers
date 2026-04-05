@@ -68,7 +68,7 @@ Every push to `main` rebuilds all images with layer caching. A `workflow_dispatc
 Changing package visibility on org-owned GHCR packages requires a classic PAT — `GITHUB_TOKEN` alone cannot do it.
 
 1. Create a [classic PAT](https://github.com/settings/tokens/new) with the `write:packages` scope.
-2. Add it as a repo secret named **`GITHUB_PACKAGES_PAT`**: **Settings → Secrets and variables → Actions → New repository secret**.
+2. Add it as a repo secret named **`PACKAGES_PAT`**: **Settings → Secrets and variables → Actions → New repository secret**.
 
 CI will then set each image to public automatically after every push. Existing private packages must be changed once manually: **GitHub → org → Packages → \<image\> → Package settings → Change visibility → Public**.
 
