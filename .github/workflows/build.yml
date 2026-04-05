@@ -71,6 +71,11 @@ jobs:
 
       - name: Make package public
         run: |
+          # List packages so the exact name is visible in logs if the PATCH fails
+          echo "--- available container packages ---"
+          gh api /orgs/${{ env.ORG }}/packages?package_type=container \
+            --jq '.[].name' || true
+
           gh api \
             --method PATCH \
             /orgs/${{ env.ORG }}/packages/container/devcontainers%2F${{ matrix.image }} \
