@@ -1,44 +1,90 @@
-# devcontainers
+# dever-labs devcontainers
 
-Centralised devcontainer images for dever-labs. All service repos reference images from here — no per-repo builds.
+Shared, pre-built devcontainer images for the dever-labs organisation — ready for **human developers** and **AI coding agents** (GitHub Copilot, Claude Code).
 
-## Images
+All service repos reference an image from here. No per-repo builds, no drift between environments.
 
-| Image | Contents | Used by |
-|-------|----------|---------|
-| [`dotnet-dev`](images/dotnet-dev/.devcontainer/) | .NET 10 SDK, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | All .NET repos |
-| [`frontend-dev`](images/frontend-dev/.devcontainer/) | Node.js LTS, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | React/Vue/Angular SPA repos |
-| [`python-dev`](images/python-dev/.devcontainer/) | Python 3.13, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Python API and data script repos |
-| [`go-dev`](images/go-dev/.devcontainer/) | Go latest, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Go microservice and CLI repos |
-| [`infra-dev`](images/infra-dev/.devcontainer/) | Terraform, Azure CLI, Docker-in-Docker, kubectl, Helm, minikube, git, GitHub CLI | Infrastructure and platform repos |
+## Available images
 
-## How it works
+| Image | Pull | Toolchain | Extras |
+|-------|------|-----------|--------|
+| [`dotnet-dev`](docs/dotnet-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/dotnet-dev:latest` | .NET 10 SDK | Docker-in-Docker, kubectl, Helm, minikube |
+| [`frontend-dev`](docs/frontend-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/frontend-dev:latest` | Node.js LTS | Docker-in-Docker, kubectl, Helm, minikube |
+| [`python-dev`](docs/python-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/python-dev:latest` | Python 3.13 | Docker-in-Docker, kubectl, Helm, minikube |
+| [`go-dev`](docs/go-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/go-dev:latest` | Go (latest) | Docker-in-Docker, kubectl, Helm, minikube |
+| [`infra-dev`](docs/infra-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/infra-dev:latest` | Terraform, Azure CLI | AWS CLI, GCP SDK, ArgoCD, Docker-in-Docker, kubectl, Helm, minikube |
+
+All images include: **git**, **GitHub CLI**, **GitHub Copilot**, **Claude Code**, and **openclaw.ai**.
+
+## Using an image in a service repo
+
+Add a `.devcontainer/devcontainer.json` that references the pre-built image:
+
+```jsonc
+{
+  "name": "my-service",
+  "image": "ghcr.io/dever-labs/devcontainers/dotnet-dev:latest"
+}
+```
+
+That's it. No build step in the service repo. When the shared image updates, every repo picks it up on the next container rebuild.
+
+## Using with AI agents
+
+These images are designed to work as autonomous agent environments, not just IDE containers.
+
+### GitHub Copilot Coding Agent / Copilot Workspace
+
+The images are compatible with [GitHub Copilot coding agent](https://docs.github.com/en/copilot/using-github-copilot/using-claude-sonnet-in-github-copilot). Reference the image in your repo's `.devcontainer/devcontainer.json` and Copilot will use it automatically.
+
+### Claude Code
+
+Claude Code is pre-installed as a VS Code extension (`anthropics.claude-code`). For headless agent use:
+
+```bash
+docker run --rm -it ghcr.io/dever-labs/devcontainers/dotnet-dev:latest bash
+```
+
+### Token forwarding
+
+`GITHUB_TOKEN` is forwarded from the host environment into the container via `remoteEnv`. No re-authentication needed for `gh` CLI or git operations.
+
+## How CI builds images
 
 ```
-images/dotnet-dev/.devcontainer/devcontainer.json   ← defines base + features
+images/dotnet-dev/devcontainer.json
          │
-         ▼ (CI builds on push to main)
-ghcr.io/dever-labs/devcontainers/dotnet-dev:latest
+         ▼  (push to main → GitHub Actions)
+ghcr.io/dever-labs/devcontainers/dotnet-dev:latest   [public]
          │
-         ▼ (service repos reference)
-.devcontainer/devcontainer.json → "image": "ghcr.io/dever-labs/devcontainers/dotnet-dev:latest"
+         ▼  (service repos reference)
+.devcontainer/devcontainer.json → "image": "ghcr.io/..."
 ```
 
-CI rebuilds only the image(s) whose folder changed. Each push to `main` that touches `images/dotnet-service/**` triggers a fresh build with layer caching.
+Every push to `main` rebuilds all images with layer caching. A `workflow_dispatch` input lets you rebuild a single named image.
+
+## One-time setup: make packages public automatically
+
+The CI workflow uses a PAT to set each package's visibility to public after every push. Without it, newly pushed packages remain private and require authentication to pull.
+
+1. Create a [classic PAT](https://github.com/settings/tokens/new) with the `write:packages` scope.
+2. Add it as a repo secret named **`PACKAGES_PAT`**: **Settings → Secrets and variables → Actions → New repository secret**.
+
+Once set, every CI build will automatically call the GitHub API to set the image visibility to public. Existing private packages must be made public manually once via **GitHub → org → Packages → \<image\> → Package settings → Change visibility → Public**.
 
 ## Adding a new image
 
-1. Create `images/<name>/devcontainer.json` with the base image and features
-2. Add a filter entry in `.github/workflows/build.yml` under `changes`
-3. Push to `main` — CI builds and pushes `ghcr.io/dever-labs/devcontainers/<name>:latest`
-4. Make the package public: GitHub → Packages → `<name>` → Package settings → Make public
+1. Create `images/<name>/devcontainer.json` using an existing image as a template.
+2. Push to `main` — CI builds and pushes `ghcr.io/dever-labs/devcontainers/<name>:latest`.
+3. Reference it in service repos.
 
-## Updating an existing image
+## Modifying an existing image
 
-Edit `images/<name>/devcontainer.json` and push to `main`. All repos using the image pick up the change on their next container rebuild — no changes needed in service repos.
+Edit `images/<name>/devcontainer.json` and push to `main`. Service repos pick up the change on their next container rebuild — no changes needed in service repos.
 
-## Making packages public
+## Conventions
 
-After the first build, make each package public so developers can pull without authenticating:
+- Base image: `mcr.microsoft.com/devcontainers/base:ubuntu-24.04`
+- Feature versions: pin to `major.minor` (e.g. `"version": "10.0"`) so patch updates flow automatically.
+- Keep images generic for their persona — no project-specific tooling here.
 
-**GitHub → org → Packages → select image → Package settings → Change visibility → Public**

@@ -50,6 +50,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+      # packages: write alone cannot change visibility on org-owned packages.
+      # A PACKAGES_PAT secret with write:packages scope is required for that step.
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -64,7 +66,20 @@ jobs:
       - name: Build and push ${{ matrix.image }}
         uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6 # v0.3
         with:
-          subFolder: images/${{ matrix.image }}
+          configFile: images/${{ matrix.image }}/devcontainer.json
           imageName: ${{ env.REGISTRY }}/${{ env.ORG }}/devcontainers/${{ matrix.image }}
           cacheFrom: ${{ env.REGISTRY }}/${{ env.ORG }}/devcontainers/${{ matrix.image }}
           push: always
+
+      - name: Make package public
+        # Requires PACKAGES_PAT secret: classic PAT with write:packages scope.
+        # Falls back to GITHUB_TOKEN (will warn but not fail) if secret is not set.
+        run: |
+          PACKAGE_NAME="devcontainers%2F${{ matrix.image }}"
+          gh api \
+            --method PATCH \
+            /orgs/${{ env.ORG }}/packages/container/$PACKAGE_NAME \
+            -f visibility=public \
+          || echo "::warning::Could not set package visibility to public. Set the PACKAGES_PAT secret (classic PAT with write:packages scope)."
+        env:
+          GH_TOKEN: ${{ secrets.PACKAGES_PAT || secrets.GITHUB_TOKEN }}

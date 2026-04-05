@@ -1,15 +1,14 @@
 {
-  // Definition for the python-service devcontainer image.
+  // Definition for the go-service devcontainer image.
   // This file is used by CI to build and push the image to GHCR.
   // Service repos reference the resulting image — they do not build it themselves.
-  "name": "python-dev",
+  "name": "go-dev",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
 
   "features": {
-    // Python — pin to major.minor so patch updates flow automatically
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.13",
-      "installTools": true
+    // Go — pin to major.minor so patch updates flow automatically
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "latest"
     },
     // Docker-in-Docker — required for kind cluster nodes inside the container
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
@@ -29,11 +28,19 @@
 
   "postStartCommand": "minikube status || minikube start --driver=docker",
 
+  "remoteEnv": {
+    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+  },
+
   "customizations": {
     "vscode": {
       "extensions": [
+        // AI agents
         "github.copilot",
-        "github.copilot-chat"
+        "github.copilot-chat",
+        "anthropics.claude-code",
+        // Go
+        "golang.go"
       ]
     }
   }

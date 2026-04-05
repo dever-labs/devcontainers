@@ -1,14 +1,15 @@
 {
-  // Definition for the go-service devcontainer image.
+  // Definition for the frontend devcontainer image.
   // This file is used by CI to build and push the image to GHCR.
   // Service repos reference the resulting image — they do not build it themselves.
-  "name": "go-dev",
+  "name": "frontend-dev",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
 
   "features": {
-    // Go — pin to major.minor so patch updates flow automatically
-    "ghcr.io/devcontainers/features/go:1": {
-      "version": "latest"
+    // Node.js LTS with corepack — enables pnpm via `corepack enable pnpm`
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts",
+      "nodeGypDependencies": false
     },
     // Docker-in-Docker — required for kind cluster nodes inside the container
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
@@ -28,11 +29,21 @@
 
   "postStartCommand": "minikube status || minikube start --driver=docker",
 
+  "remoteEnv": {
+    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+  },
+
   "customizations": {
     "vscode": {
       "extensions": [
+        // AI agents
         "github.copilot",
-        "github.copilot-chat"
+        "github.copilot-chat",
+        "anthropics.claude-code",
+        // Frontend
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "bradlc.vscode-tailwindcss"
       ]
     }
   }
