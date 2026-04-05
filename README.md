@@ -65,11 +65,12 @@ Every push to `main` rebuilds all images with layer caching. A `workflow_dispatc
 
 ## One-time setup: make packages public
 
-Set the org default so every package pushed from Actions is public automatically — no PAT, no extra CI step.
+Changing package visibility on org-owned GHCR packages requires a classic PAT — `GITHUB_TOKEN` alone cannot do it.
 
-**github.com/organizations/dever-labs/settings/packages → Default package visibility → Public**
+1. Create a [classic PAT](https://github.com/settings/tokens/new) with the `write:packages` scope.
+2. Add it as a repo secret named **`GITHUB_PACKAGES_PAT`**: **Settings → Secrets and variables → Actions → New repository secret**.
 
-Existing private packages must be changed once manually: **GitHub → org → Packages → \<image\> → Package settings → Change visibility → Public**.
+CI will then set each image to public automatically after every push. Existing private packages must be changed once manually: **GitHub → org → Packages → \<image\> → Package settings → Change visibility → Public**.
 
 ## Adding a new image
 

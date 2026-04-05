@@ -68,3 +68,12 @@ jobs:
           imageName: ${{ env.REGISTRY }}/${{ env.ORG }}/devcontainers/${{ matrix.image }}
           cacheFrom: ${{ env.REGISTRY }}/${{ env.ORG }}/devcontainers/${{ matrix.image }}
           push: always
+
+      - name: Make package public
+        run: |
+          gh api \
+            --method PATCH \
+            /orgs/${{ env.ORG }}/packages/container/devcontainers%2F${{ matrix.image }} \
+            -f visibility=public
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_PACKAGES_PAT }}
