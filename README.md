@@ -45,9 +45,20 @@ Claude Code is pre-installed as a VS Code extension (`anthropics.claude-code`). 
 docker run --rm -it ghcr.io/dever-labs/devcontainers/dotnet-dev:latest bash
 ```
 
-### Token forwarding
+### Authentication
 
-`GITHUB_TOKEN` is forwarded from the host environment into the container via `remoteEnv`. No re-authentication needed for `gh` CLI or git operations.
+All images mount a shared Docker volume — `dever-labs-gh-config` — to `~/.config/gh`. Authenticate once inside any container and every dever-labs devcontainer picks it up automatically, across rebuilds and repos.
+
+```bash
+# Run once, inside any container
+gh auth login
+```
+
+Docker volumes are OS-agnostic — this works on macOS, Linux, and Windows without any host path configuration.
+
+For AI agents (Copilot coding agent, Claude Code), `GITHUB_TOKEN` is forwarded from the platform environment via `remoteEnv` and takes precedence over the volume credentials.
+
+→ [Full authentication guide](docs/github-auth.md)
 
 ## How CI builds images
 

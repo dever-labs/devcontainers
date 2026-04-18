@@ -33,6 +33,12 @@
     "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
   },
 
+  "mounts": [
+    // Persist gh credentials across all dever-labs devcontainers.
+    // Run `gh auth login` once — every container that mounts this volume gets your credentials.
+    "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume"
+  ],
+
   "customizations": {
     "vscode": {
       "extensions": [
