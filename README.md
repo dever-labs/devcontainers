@@ -14,7 +14,7 @@ All service repos reference an image from here. No per-repo builds, no drift bet
 | [`go-dev`](docs/go-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/go-dev:latest` | Go 1.24 | Docker-in-Docker, kubectl, Helm, minikube |
 | [`infra-dev`](docs/infra-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/infra-dev:latest` | Terraform, Azure CLI | AWS CLI, GCP SDK, ArgoCD, Docker-in-Docker, kubectl, Helm, minikube |
 
-All images include: **git**, **GitHub CLI**, **GitHub Copilot**, **Claude Code** (VS Code extension + CLI), and **openclaw.ai**.
+All images include: **git**, **GitHub CLI**, **GitHub Copilot**, and **Claude Code** (VS Code extension + CLI).
 
 ## Using an image in a service repo
 

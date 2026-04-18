@@ -25,7 +25,7 @@
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
 
-  "onCreateCommand": "npm install -g openclaw@latest @anthropic-ai/claude-code",
+  "onCreateCommand": "npm install -g @anthropic-ai/claude-code",
 
   "postStartCommand": "[ \"$(uname -m)\" = \"aarch64\" ] || (minikube status || minikube start --driver=docker)",
 
