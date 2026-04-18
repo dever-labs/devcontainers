@@ -59,7 +59,8 @@
         // Infrastructure
         "hashicorp.terraform",
         "ms-kubernetes-tools.vscode-kubernetes-tools",
-        "ms-azuretools.vscode-azureterraform"
+        "ms-azuretools.vscode-azureterraform",
+        "redhat.vscode-yaml"
       ]
     }
   }

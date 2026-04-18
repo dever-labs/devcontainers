@@ -53,7 +53,12 @@
         "anthropics.claude-code",
         // .NET
         "ms-dotnettools.csdevkit",
-        "ms-dotnettools.csharp"
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        // REST API testing
+        "humao.rest-client",
+        // Code quality
+        "editorconfig.editorconfig"
       ]
     }
   }
