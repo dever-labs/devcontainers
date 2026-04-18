@@ -30,7 +30,7 @@
     }
   },
 
-  "onCreateCommand": "npm install -g @anthropic-ai/claude-code",
+  "onCreateCommand": "npm install -g @anthropic-ai/claude-code && gh extension install github/gh-copilot",
 
   "postStartCommand": "[ \"$(uname -m)\" = \"aarch64\" ] || (minikube status || minikube start --driver=docker)",
 
