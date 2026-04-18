@@ -30,7 +30,7 @@
     }
   },
 
-  "onCreateCommand": "curl -fsSL https://install.openclaw.ai | sh && npm install -g @anthropic-ai/claude-code",
+  "onCreateCommand": "npm install -g openclaw@latest @anthropic-ai/claude-code",
 
   "postStartCommand": "[ \"$(uname -m)\" = \"aarch64\" ] || (minikube status || minikube start --driver=docker)",
 
