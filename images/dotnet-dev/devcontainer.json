@@ -31,7 +31,7 @@
 
   "onCreateCommand": "curl -fsSL https://install.openclaw.ai | sh && npm install -g @anthropic-ai/claude-code",
 
-  "postStartCommand": "minikube status || minikube start --driver=docker",
+  "postStartCommand": "[ \"$(uname -m)\" = \"aarch64\" ] || (minikube status || minikube start --driver=docker)",
 
   "mounts": [
     // Persist gh credentials across all dever-labs devcontainers.
