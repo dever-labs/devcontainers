@@ -3,6 +3,7 @@ name: Build Dev Container Images
 on:
   push:
     branches: [main]
+    tags: ['v*']
   workflow_dispatch:
     inputs:
       image:
@@ -34,7 +35,7 @@ jobs:
               IMAGES=$(ls images/ | jq -R -s -c 'split("\n") | map(select(length > 0))')
             fi
           else
-            # On push to main always rebuild all images — ensures every commit is verified
+            # On push to main or a version tag, rebuild all images
             IMAGES=$(ls images/ | jq -R -s -c 'split("\n") | map(select(length > 0))')
           fi
           echo "images=$IMAGES" >> $GITHUB_OUTPUT
@@ -61,10 +62,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Determine image tags
+        id: tags
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "tags=latest,${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tags=latest" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build and push ${{ matrix.image }}
         uses: devcontainers/ci@b63b30de439b47a52267f241112c5b453b673db5 # v0.3
         with:
           configFile: images/${{ matrix.image }}/devcontainer.json
           imageName: ${{ env.REGISTRY }}/${{ env.ORG }}/devcontainers/${{ matrix.image }}
+          imageTag: ${{ steps.tags.outputs.tags }}
           cacheFrom: ${{ env.REGISTRY }}/${{ env.ORG }}/devcontainers/${{ matrix.image }}
           push: always
