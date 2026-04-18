@@ -11,7 +11,7 @@ All service repos reference an image from here. No per-repo builds, no drift bet
 | [`dotnet-dev`](docs/dotnet-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/dotnet-dev:latest` | .NET 10 SDK | Docker-in-Docker, kubectl, Helm, minikube |
 | [`frontend-dev`](docs/frontend-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/frontend-dev:latest` | Node.js LTS | Docker-in-Docker, kubectl, Helm, minikube |
 | [`python-dev`](docs/python-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/python-dev:latest` | Python 3.13 | Docker-in-Docker, kubectl, Helm, minikube |
-| [`go-dev`](docs/go-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/go-dev:latest` | Go (latest) | Docker-in-Docker, kubectl, Helm, minikube |
+| [`go-dev`](docs/go-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/go-dev:latest` | Go 1.24 | Docker-in-Docker, kubectl, Helm, minikube |
 | [`infra-dev`](docs/infra-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/infra-dev:latest` | Terraform, Azure CLI | AWS CLI, GCP SDK, ArgoCD, Docker-in-Docker, kubectl, Helm, minikube |
 
 All images include: **git**, **GitHub CLI**, **GitHub Copilot**, **Claude Code** (VS Code extension + CLI), and **openclaw.ai**.

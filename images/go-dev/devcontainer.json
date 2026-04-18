@@ -8,7 +8,7 @@
   "features": {
     // Go — pin to major.minor so patch updates flow automatically
     "ghcr.io/devcontainers/features/go:1": {
-      "version": "latest"
+      "version": "1.24"
     },
     // Docker-in-Docker — required for kind cluster nodes inside the container
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
