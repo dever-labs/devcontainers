@@ -1,6 +1,6 @@
 # dever-labs devcontainers
 
-Shared, pre-built devcontainer images for the dever-labs organisation — ready for **human developers** and **AI coding agents** (GitHub Copilot, Claude Code, openclaw).
+Shared, pre-built devcontainer images for the dever-labs organisation — ready for **human developers** and **AI coding agents** (GitHub Copilot, Claude Code).
 
 All service repos reference an image from here. No per-repo builds, no drift between environments.
 
