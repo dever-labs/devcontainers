@@ -3,7 +3,7 @@
   // This file is used by CI to build and push the image to GHCR.
   // Service repos reference the resulting image — they do not build it themselves.
   "name": "go-dev",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "build": { "dockerfile": "Dockerfile" },
 
   "features": {
     // Go — pin to major.minor so patch updates flow automatically
