@@ -36,14 +36,17 @@
   // AWS CLI, GCP SDK and ArgoCD CLI installed via shell — devcontainers-contrib features
   // are unreliable in CI (access/permissions issues).
   // All downloads are arch-aware so the image works on both amd64 and arm64.
-  "onCreateCommand": "npm install -g @anthropic-ai/claude-code && gh extension install github/gh-copilot && ARCH=$(uname -m) && AWS_ARCH=$([ \"$ARCH\" = \"aarch64\" ] && echo \"aarch64\" || echo \"x86_64\") && curl -fsSL \"https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip\" -o /tmp/awscliv2.zip && unzip -q /tmp/awscliv2.zip -d /tmp && sudo /tmp/aws/install && rm -rf /tmp/awscliv2.zip /tmp/aws && curl -fsSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=/usr/local/gcloud && ln -sf /usr/local/gcloud/google-cloud-sdk/bin/gcloud /usr/local/bin/gcloud && ARGOCD_ARCH=$([ \"$ARCH\" = \"aarch64\" ] && echo \"arm64\" || echo \"amd64\") && curl -sSL -o /usr/local/bin/argocd \"https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-${ARGOCD_ARCH}\" && chmod +x /usr/local/bin/argocd",
+  "onCreateCommand": "npm list -g @github/copilot >/dev/null 2>&1 || npm install -g @github/copilot; npm list -g @anthropic-ai/claude-code >/dev/null 2>&1 || npm install -g @anthropic-ai/claude-code && ARCH=$(uname -m) && AWS_ARCH=$([ \"$ARCH\" = \"aarch64\" ] && echo \"aarch64\" || echo \"x86_64\") && curl -fsSL \"https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip\" -o /tmp/awscliv2.zip && unzip -q /tmp/awscliv2.zip -d /tmp && sudo /tmp/aws/install && rm -rf /tmp/awscliv2.zip /tmp/aws && curl -fsSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=/usr/local/gcloud && ln -sf /usr/local/gcloud/google-cloud-sdk/bin/gcloud /usr/local/bin/gcloud && ARGOCD_ARCH=$([ \"$ARCH\" = \"aarch64\" ] && echo \"arm64\" || echo \"amd64\") && curl -sSL -o /usr/local/bin/argocd \"https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-${ARGOCD_ARCH}\" && chmod +x /usr/local/bin/argocd",
 
   "postStartCommand": "[ \"$(uname -m)\" = \"aarch64\" ] || (minikube status || minikube start --driver=docker)",
 
   "mounts": [
     // Persist gh credentials across all dever-labs devcontainers.
     // Run `gh auth login` once — every container that mounts this volume gets your credentials.
-    "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume"
+    "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume",
+    // Persist Copilot CLI credentials (stored at ~/.copilot/config.json on headless Linux).
+    // Run `copilot /login` once — all containers with this volume stay authenticated.
+    "source=dever-labs-copilot-config,target=/home/vscode/.copilot,type=volume"
   ],
 
   "remoteEnv": {

@@ -29,14 +29,17 @@
     }
   },
 
-  "onCreateCommand": "npm install -g @anthropic-ai/claude-code && gh extension install github/gh-copilot",
+  "onCreateCommand": "npm list -g @github/copilot >/dev/null 2>&1 || npm install -g @github/copilot; npm list -g @anthropic-ai/claude-code >/dev/null 2>&1 || npm install -g @anthropic-ai/claude-code",
 
   "postStartCommand": "[ \"$(uname -m)\" = \"aarch64\" ] || (minikube status || minikube start --driver=docker)",
 
   "mounts": [
     // Persist gh credentials across all dever-labs devcontainers.
     // Run `gh auth login` once — every container that mounts this volume gets your credentials.
-    "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume"
+    "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume",
+    // Persist Copilot CLI credentials (stored at ~/.copilot/config.json on headless Linux).
+    // Run `copilot /login` once — all containers with this volume stay authenticated.
+    "source=dever-labs-copilot-config,target=/home/vscode/.copilot,type=volume"
   ],
 
   "remoteEnv": {
