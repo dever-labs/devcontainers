@@ -1,0 +1,52 @@
+{
+  // Definition for the flutter-dev devcontainer image.
+  // This file is used by CI to build and push the image to GHCR.
+  // Service repos reference the resulting image — they do not build it themselves.
+  //
+  // NOTE: iOS builds require macOS and cannot run inside this Linux container.
+  // Use a macOS GitHub Actions runner for iOS CI builds.
+  "name": "flutter-dev",
+  "build": { "dockerfile": "Dockerfile" },
+
+  "features": {
+    // Flutter SDK (stable channel) — includes Dart SDK
+    "ghcr.io/devcontainers-contrib/features/flutter:1": {
+      "channel": "stable"
+    },
+    // Node.js LTS — required for Claude Code CLI
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts",
+      "nodeGypDependencies": false
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  "onCreateCommand": "npm install -g @anthropic-ai/claude-code && gh extension install github/gh-copilot && flutter config --no-analytics && flutter precache --web --linux",
+
+  "remoteEnv": {
+    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+  },
+
+  "mounts": [
+    // Persist gh credentials across all dever-labs devcontainers.
+    // Run `gh auth login` once — every container that mounts this volume gets your credentials.
+    "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume",
+    // Persist Flutter/pub cache across rebuilds to speed up `flutter pub get`.
+    "source=flutter-pub-cache,target=/home/vscode/.pub-cache,type=volume"
+  ],
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // AI agents
+        "github.copilot",
+        "github.copilot-chat",
+        "anthropics.claude-code",
+        // Flutter & Dart
+        "dart-code.flutter",
+        "dart-code.dart-code"
+      ]
+    }
+  }
+}
