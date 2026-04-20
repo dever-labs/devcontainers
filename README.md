@@ -12,6 +12,7 @@ All service repos reference an image from here. No per-repo builds, no drift bet
 | [`frontend-dev`](docs/frontend-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/frontend-dev:latest` | Node.js LTS | Docker-in-Docker, kubectl, Helm, minikube |
 | [`python-dev`](docs/python-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/python-dev:latest` | Python 3.13 | Docker-in-Docker, kubectl, Helm, minikube |
 | [`go-dev`](docs/go-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/go-dev:latest` | Go 1.24 | Docker-in-Docker, kubectl, Helm, minikube |
+| [`flutter-dev`](docs/flutter-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/flutter-dev:latest` | Flutter stable + Dart SDK | Web, Linux, Android targets (iOS requires macOS runner) |
 | [`infra-dev`](docs/infra-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/infra-dev:latest` | Terraform, Azure CLI | AWS CLI, GCP SDK, ArgoCD, Docker-in-Docker, kubectl, Helm, minikube |
 
 All images include: **git**, **GitHub CLI**, **GitHub Copilot**, and **Claude Code** (VS Code extension + CLI).
