@@ -3,16 +3,15 @@
   // This file is used by CI to build and push the image to GHCR.
   // Service repos reference the resulting image — they do not build it themselves.
   //
+  // Flutter SDK is installed directly in the Dockerfile (not via a feature) to avoid
+  // dependency on the devcontainers-contrib community registry.
+  //
   // NOTE: iOS builds require macOS and cannot run inside this Linux container.
   // Use a macOS GitHub Actions runner for iOS CI builds.
   "name": "flutter-dev",
   "build": { "dockerfile": "Dockerfile" },
 
   "features": {
-    // Flutter SDK (stable channel) — includes Dart SDK
-    "ghcr.io/devcontainers-contrib/features/flutter:1": {
-      "channel": "stable"
-    },
     // Node.js LTS — required for Claude Code CLI
     "ghcr.io/devcontainers/features/node:1": {
       "version": "lts",
@@ -22,19 +21,17 @@
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
 
-  "onCreateCommand": "npm list -g @github/copilot >/dev/null 2>&1 || npm install -g @github/copilot; npm list -g @anthropic-ai/claude-code >/dev/null 2>&1 || npm install -g @anthropic-ai/claude-code && flutter config --no-analytics && flutter precache --web --linux",
-
   "remoteEnv": {
-    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
+    "PATH": "/home/vscode/flutter/bin:/home/vscode/flutter/bin/cache/dart-sdk/bin:${containerEnv:PATH}"
   },
+
+  "onCreateCommand": "npm install -g @anthropic-ai/claude-code && gh extension install github/gh-copilot",
 
   "mounts": [
     // Persist gh credentials across all dever-labs devcontainers.
     // Run `gh auth login` once — every container that mounts this volume gets your credentials.
     "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume",
-    // Persist Copilot CLI credentials (stored at ~/.copilot/config.json on headless Linux).
-    // Run `copilot /login` once — all containers with this volume stay authenticated.
-    "source=dever-labs-copilot-config,target=/home/vscode/.copilot,type=volume",
     // Persist Flutter/pub cache across rebuilds to speed up `flutter pub get`.
     "source=flutter-pub-cache,target=/home/vscode/.pub-cache,type=volume"
   ],
