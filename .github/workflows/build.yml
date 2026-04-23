@@ -46,6 +46,7 @@ jobs:
     if: ${{ needs.changes.outputs.images != '[]' }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false  # one image failing should not cancel the others
       matrix:
         image: ${{ fromJSON(needs.changes.outputs.images) }}
     permissions:

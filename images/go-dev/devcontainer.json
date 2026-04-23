@@ -21,7 +21,6 @@
       "minikube": "latest"
     },
     "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {},
     // Node.js — required for Claude Code CLI
     "ghcr.io/devcontainers/features/node:1": {
       "version": "lts",
