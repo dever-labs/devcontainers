@@ -46,7 +46,7 @@
     "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume",
     // Persist Copilot CLI credentials (stored at ~/.copilot/config.json on headless Linux).
     // Run `copilot /login` once — all containers with this volume stay authenticated.
-    "source=dever-labs-copilot-config,target=/home/vscode/.copilot,type=volume"
+    "source=dever-labs-copilot,target=/home/vscode/.copilot,type=volume"
   ],
 
   "remoteEnv": {
