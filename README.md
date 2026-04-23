@@ -19,16 +19,42 @@ All images include: **git**, **GitHub CLI**, **GitHub Copilot**, and **Claude Co
 
 ## Using an image in a service repo
 
-Add a `.devcontainer/devcontainer.json` that references the pre-built image:
+Add a `.devcontainer/devcontainer.json` that references the pre-built image. The devcontainer spec doesn't support inheritance, so a small set of runtime properties (mounts, env, extensions) must be repeated in each repo. Copy the template below and add your repo-specific extensions at the bottom.
 
 ```jsonc
 {
   "name": "my-service",
-  "image": "ghcr.io/dever-labs/devcontainers/dotnet-dev:latest"
+  // Replace with the image that matches your stack.
+  // Available: dotnet-dev, frontend-dev, python-dev, go-dev, flutter-dev, infra-dev
+  "image": "ghcr.io/dever-labs/devcontainers/<name>:latest",
+
+  "mounts": [
+    // Shared gh credentials — run `gh auth login` once, all dever-labs containers share it.
+    "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume",
+    // Shared Copilot CLI credentials — run `copilot /login` once, all containers share it.
+    "source=dever-labs-copilot-config,target=/home/vscode/.copilot,type=volume"
+  ],
+
+  "remoteEnv": {
+    // Forward host GitHub token so AI agents can authenticate without re-login.
+    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // AI agents — include in every dever-labs devcontainer
+        "github.copilot",
+        "github.copilot-chat",
+        "anthropics.claude-code"
+        // Add your stack-specific extensions below
+      ]
+    }
+  }
 }
 ```
 
-That's it. No build step in the service repo. When the shared image updates, every repo picks it up on the next container rebuild.
+No build step in the service repo. When the shared image updates, every repo picks it up on the next container rebuild.
 
 ## Using with AI agents
 
