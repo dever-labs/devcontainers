@@ -36,7 +36,7 @@
   // AWS CLI, GCP SDK and ArgoCD CLI installed via shell — devcontainers-contrib features
   // are unreliable in CI (access/permissions issues).
   // All downloads are arch-aware so the image works on both amd64 and arm64.
-  "postCreateCommand": "npm install -g @github/copilot @anthropic-ai/claude-code && ln -sf $(npm prefix -g)/bin/copilot /usr/local/bin/copilot && ln -sf $(npm prefix -g)/bin/claude /usr/local/bin/claude",
+  "postCreateCommand": "npm install -g @github/copilot @anthropic-ai/claude-code && sudo ln -sf $(npm prefix -g)/bin/copilot /usr/local/bin/copilot && sudo ln -sf $(npm prefix -g)/bin/claude /usr/local/bin/claude",
 
   "postStartCommand": "[ \"$(uname -m)\" = \"aarch64\" ] || (minikube status || minikube start --driver=docker)",
 

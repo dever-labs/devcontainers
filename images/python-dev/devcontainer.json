@@ -32,7 +32,7 @@
 
   // postCreateCommand runs on every create AND rebuild — ensures binaries are always present.
   // Symlink into /usr/local/bin so they shadow VS Code's own copilot injected by vscode-server.
-  "postCreateCommand": "npm install -g @github/copilot @anthropic-ai/claude-code && ln -sf $(npm prefix -g)/bin/copilot /usr/local/bin/copilot && ln -sf $(npm prefix -g)/bin/claude /usr/local/bin/claude",
+  "postCreateCommand": "npm install -g @github/copilot @anthropic-ai/claude-code && sudo ln -sf $(npm prefix -g)/bin/copilot /usr/local/bin/copilot && sudo ln -sf $(npm prefix -g)/bin/claude /usr/local/bin/claude",
 
   // Only start minikube on amd64 — arm64 machines don't have a compatible driver.
   "postStartCommand": "[ \"$(uname -m)\" = \"aarch64\" ] || (minikube status || minikube start --driver=docker)",
