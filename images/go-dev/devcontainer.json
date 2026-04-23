@@ -29,7 +29,7 @@
     }
   },
 
-  "onCreateCommand": "npm list -g @github/copilot >/dev/null 2>&1 || npm install -g @github/copilot; npm list -g @anthropic-ai/claude-code >/dev/null 2>&1 || npm install -g @anthropic-ai/claude-code",
+  "postCreateCommand": "npm install -g @github/copilot @anthropic-ai/claude-code",
 
   "postStartCommand": "[ \"$(uname -m)\" = \"aarch64\" ] || (minikube status || minikube start --driver=docker)",
 
@@ -43,6 +43,7 @@
   ],
 
   "remoteEnv": {
+    "PATH": "/usr/local/bin:${containerEnv:PATH}",
     "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
   },
 

@@ -30,8 +30,11 @@
     }
   },
 
-  "onCreateCommand": "npm list -g @github/copilot >/dev/null 2>&1 || npm install -g @github/copilot; npm list -g @anthropic-ai/claude-code >/dev/null 2>&1 || npm install -g @anthropic-ai/claude-code",
+  // postCreateCommand runs on every create AND rebuild — ensures binaries are always present.
+  // Always install fresh; no guards so /usr/local/bin symlinks are always created.
+  "postCreateCommand": "npm install -g @github/copilot @anthropic-ai/claude-code",
 
+  // Only start minikube on amd64 — arm64 machines don't have a compatible driver.
   "postStartCommand": "[ \"$(uname -m)\" = \"aarch64\" ] || (minikube status || minikube start --driver=docker)",
 
   "mounts": [
@@ -44,6 +47,8 @@
   ],
 
   "remoteEnv": {
+    // Put /usr/local/bin first so npm-installed copilot/claude shadow the VS Code extension binaries.
+    "PATH": "/usr/local/bin:${containerEnv:PATH}",
     "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
   },
 
