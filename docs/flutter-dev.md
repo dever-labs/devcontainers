@@ -8,7 +8,7 @@ Pre-built devcontainer for Flutter applications — iOS, Android, Web, Linux, ma
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Flutter SDK | stable | Framework + Dart SDK + toolchain |
+| Flutter SDK | 3.41.9 (stable) | Framework + Dart SDK + toolchain |
 | Dart SDK | (bundled with Flutter) | Language runtime |
 | Node.js | LTS | Required for Claude Code CLI |
 | git | latest | Source control |
@@ -81,12 +81,11 @@ add a volume mount to your service repo's `devcontainer.json`:
 
 ## Updating Flutter
 
-Edit `images/flutter-dev/devcontainer.json`:
+Edit `images/flutter-dev/Dockerfile`:
 
-```jsonc
-"ghcr.io/devcontainers-contrib/features/flutter:1": {
-  "channel": "stable"   // or "beta" / "master"
-}
+```dockerfile
+ARG FLUTTER_VERSION=3.41.9
+ARG FLUTTER_CHANNEL=stable
 ```
 
 Push to `main` — all service repos pick it up on next rebuild.

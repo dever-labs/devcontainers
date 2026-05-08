@@ -12,19 +12,21 @@
     },
     // Docker-in-Docker — required for kind cluster nodes inside the container
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
-      "version": "latest"
+      "version": "29"
     },
     // kubectl + Helm + minikube — local cluster for developing against team helm charts
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
-      "version": "latest",
-      "helm": "latest",
-      "minikube": "latest"
+      "version": "1.36",
+      "helm": "4.1.4",
+      "minikube": "1.38.1"
     },
     "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    // Node.js — required for Claude Code CLI
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "2.92.0"
+    },
+    // Node.js stable — required for Claude Code CLI
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "lts",
+      "version": "26",
       "nodeGypDependencies": false
     }
   },

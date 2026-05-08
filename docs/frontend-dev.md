@@ -6,14 +6,14 @@ Pre-built devcontainer for frontend applications — React, Vue, Angular, Next.j
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Node.js | LTS | Runtime and package management |
+| Node.js | 26 | Runtime and package management |
 | npm / pnpm / yarn | via corepack | Package managers (`corepack enable pnpm` to activate pnpm) |
-| Docker-in-Docker | latest | Build images, run containers inside the devcontainer |
-| kubectl | latest | Deploy to and inspect Kubernetes clusters |
-| Helm | latest | Install and manage Helm charts |
-| minikube | latest | Local Kubernetes cluster (auto-started on container start) |
+| Docker-in-Docker | 29 | Build images, run containers inside the devcontainer |
+| kubectl | 1.36 | Deploy to and inspect Kubernetes clusters |
+| Helm | 4.1.4 | Install and manage Helm charts |
+| minikube | 1.38.1 | Local Kubernetes cluster (auto-started on container start) |
 | git | latest | Source control |
-| GitHub CLI (`gh`) | latest | PRs, issues, releases, Actions |
+| GitHub CLI (`gh`) | 2.92.0 | PRs, issues, releases, Actions |
 | openclaw.ai | latest | AI agent tooling (installed on create) |
 
 ## VS Code extensions
@@ -96,7 +96,7 @@ Edit `images/frontend-dev/devcontainer.json`:
 
 ```jsonc
 "ghcr.io/devcontainers/features/node:1": {
-  "version": "22"   // pin to a specific major, or keep "lts"
+  "version": "26"   // pin to a specific major
 }
 ```
 

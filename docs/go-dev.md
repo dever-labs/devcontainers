@@ -98,7 +98,7 @@ Edit `images/go-dev/devcontainer.json`:
 
 ```jsonc
 "ghcr.io/devcontainers/features/go:1": {
-  "version": "1.24"   // pin to major.minor, or keep "latest"
+  "version": "1.26"   // pin to major.minor, or keep "latest"
 }
 ```
 

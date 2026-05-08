@@ -8,7 +8,7 @@ COPY --from=coollabsio/openclaw:latest /usr/local/bin/openclaw /usr/local/bin/op
 
 # Install Flutter SDK directly — avoids relying on the devcontainers-contrib community
 # feature registry which is not reliably accessible from CI runners.
-ARG FLUTTER_VERSION=3.29.3
+ARG FLUTTER_VERSION=3.41.9
 ARG FLUTTER_CHANNEL=stable
 
 RUN apt-get update && apt-get install -y --no-install-recommends \

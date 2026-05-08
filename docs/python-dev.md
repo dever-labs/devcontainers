@@ -6,7 +6,7 @@ Pre-built devcontainer for Python projects — APIs (FastAPI, Flask, Django), da
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Python | 3.13 (patch auto-updates) | Runtime |
+| Python | 3.14 (patch auto-updates) | Runtime |
 | pip / pipx / virtualenv | via `installTools: true` | Package and environment management |
 | Docker-in-Docker | latest | Build images, run containers inside the devcontainer |
 | kubectl | latest | Deploy to and inspect Kubernetes clusters |

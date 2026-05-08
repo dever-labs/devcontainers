@@ -1,6 +1,4 @@
-# Dependency updates for devcontainer features
-# devcontainer.json is JSON-with-comments — dependabot doesn't natively parse it,
-# so feature version bumps are handled manually or via Renovate.
+# Dependency updates for workflows, devcontainer features, and Docker image tags.
 
 version: 2
 updates:
@@ -8,3 +6,59 @@ updates:
     directory: /
     schedule:
       interval: weekly
+
+  - package-ecosystem: devcontainers
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - devcontainer
+
+  - package-ecosystem: docker
+    directory: /images/dotnet-dev
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - docker
+
+  - package-ecosystem: docker
+    directory: /images/flutter-dev
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - docker
+
+  - package-ecosystem: docker
+    directory: /images/frontend-dev
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - docker
+
+  - package-ecosystem: docker
+    directory: /images/go-dev
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - docker
+
+  - package-ecosystem: docker
+    directory: /images/infra-dev
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - docker
+
+  - package-ecosystem: docker
+    directory: /images/python-dev
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - docker

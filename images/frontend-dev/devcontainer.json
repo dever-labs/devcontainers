@@ -6,26 +6,28 @@
   "build": { "dockerfile": "Dockerfile" },
 
   "features": {
-    // Node.js LTS with corepack — enables pnpm via `corepack enable pnpm`
+    // Node.js stable with corepack — enables pnpm via `corepack enable pnpm`
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "lts",
+      "version": "26",
       "nodeGypDependencies": false
     },
     // Docker-in-Docker — required for kind cluster nodes inside the container
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
-      "version": "latest"
+      "version": "29"
     },
     // kubectl + Helm + minikube — local cluster for developing against team helm charts
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
-      "version": "latest",
-      "helm": "latest",
-      "minikube": "latest"
+      "version": "1.36",
+      "helm": "4.1.4",
+      "minikube": "1.38.1"
     },
     "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "2.92.0"
+    }
   },
 
-  "postCreateCommand": "npm install -g @github/copilot @anthropic-ai/claude-code && sudo ln -sf $(npm prefix -g)/bin/copilot /usr/local/bin/copilot && sudo ln -sf $(npm prefix -g)/bin/claude /usr/local/bin/claude",
+  "postCreateCommand": "bash .devcontainer/init.sh",
 
   "postStartCommand": "[ \"$(uname -m)\" = \"aarch64\" ] || (minikube status || minikube start --driver=docker)",
 
