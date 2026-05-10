@@ -7,10 +7,10 @@ Pre-built devcontainer for .NET services — APIs, workers, gRPC services, and b
 | Tool | Version | Purpose |
 |------|---------|---------|
 | .NET SDK | 10.0 (patch auto-updates) | Build, test, publish |
-| Docker-in-Docker | latest | Build images, run containers inside the devcontainer |
-| kubectl | latest | Deploy to and inspect Kubernetes clusters |
-| Helm | latest | Install and manage Helm charts |
-| minikube | latest | Local Kubernetes cluster (auto-started on container start) |
+| Docker-outside-of-Docker | latest | Build images and run containers via the host Docker socket |
+| kubectl | 1.36 | Deploy to and inspect Kubernetes clusters |
+| Helm | 4.1.4 | Install and manage Helm charts |
+| k3d | 5.8.3 | Local Kubernetes cluster (auto-started on container start) |
 | git | latest | Source control |
 | GitHub CLI (`gh`) | latest | PRs, issues, releases, Actions |
 | openclaw.ai | latest | AI agent tooling (installed on create) |
@@ -44,7 +44,7 @@ Pre-built devcontainer for .NET services — APIs, workers, gRPC services, and b
 
 ### Worker service with local Kubernetes
 
-minikube starts automatically when the container starts. You can deploy Helm charts directly against the local cluster:
+A k3d cluster starts automatically when the container starts. You can deploy Helm charts directly against the local cluster:
 
 ```bash
 helm upgrade --install my-worker ./charts/my-worker --namespace dev --create-namespace
@@ -61,7 +61,7 @@ dotnet test --logger "console;verbosity=detailed"
 
 No extra configuration needed. The image is wired for agent use out of the box:
 - `GITHUB_TOKEN` is forwarded from the host so `gh` and git operations authenticate without prompts.
-- minikube is ready for agents that need to validate Kubernetes deployments.
+- A k3d cluster is ready for agents that need to validate Kubernetes deployments.
 - Claude Code and Copilot extensions are pre-installed for VS Code / Codespaces agent runs.
 
 ## Updating the .NET version

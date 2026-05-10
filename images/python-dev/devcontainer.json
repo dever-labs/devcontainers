@@ -11,15 +11,13 @@
       "version": "3.14",
       "installTools": true
     },
-    // Docker-in-Docker — required for kind cluster nodes inside the container
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {
-      "version": "29"
-    },
-    // kubectl + Helm + minikube — local cluster for developing against team helm charts
+    // Docker-outside-of-Docker — mounts host socket, no nested daemon, no privileged container
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    // kubectl + Helm — local cluster management via k3d
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
       "version": "1.36",
       "helm": "4.1.4",
-      "minikube": "1.38.1"
+      "minikube": "none"
     },
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {
@@ -34,10 +32,11 @@
 
   // postCreateCommand runs on every create AND rebuild — ensures binaries are always present.
   // Symlink into /usr/local/bin so they shadow VS Code's own copilot injected by vscode-server.
-  "postCreateCommand": "npm install -g @github/copilot @anthropic-ai/claude-code && sudo ln -sf $(npm prefix -g)/bin/copilot /usr/local/bin/copilot && sudo ln -sf $(npm prefix -g)/bin/claude /usr/local/bin/claude",
+  "postCreateCommand": "npm install -g @github/copilot @anthropic-ai/claude-code && sudo ln -sf $(npm prefix -g)/bin/copilot /usr/local/bin/copilot && sudo ln -sf $(npm prefix -g)/bin/claude /usr/local/bin/claude && curl -fsSL https://raw.githubusercontent.com/k3d-io/k3d/v5.8.3/install.sh | TAG=v5.8.3 bash",
 
-  // Only start minikube on amd64 — arm64 machines don't have a compatible driver.
-  "postStartCommand": "[ \"$(uname -m)\" = \"aarch64\" ] || (minikube status || minikube start --driver=docker)",
+  // k3d cluster lifecycle: create (with devcontainer network) on first start, resume on restart.
+  // kubeconfig is merged with --internal so kubectl reaches the k3s API from inside the container.
+  "postStartCommand": "if k3d cluster list 2>/dev/null | grep -q devcontainer; then k3d cluster start devcontainer; else NET=$(docker inspect $(hostname) --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{\"\\n\"}}{{end}}' 2>/dev/null | grep -Ev '^(bridge|host|none)$' | head -1); k3d cluster create devcontainer ${NET:+--network $NET}; fi; k3d kubeconfig merge devcontainer --kubeconfig-merge-default --internal",
 
   "mounts": [
     // Persist gh credentials across all dever-labs devcontainers.

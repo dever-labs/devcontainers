@@ -8,10 +8,10 @@ Pre-built devcontainer for Python projects — APIs (FastAPI, Flask, Django), da
 |------|---------|---------|
 | Python | 3.14 (patch auto-updates) | Runtime |
 | pip / pipx / virtualenv | via `installTools: true` | Package and environment management |
-| Docker-in-Docker | latest | Build images, run containers inside the devcontainer |
-| kubectl | latest | Deploy to and inspect Kubernetes clusters |
-| Helm | latest | Install and manage Helm charts |
-| minikube | latest | Local Kubernetes cluster (auto-started on container start) |
+| Docker-outside-of-Docker | latest | Build images and run containers via the host Docker socket |
+| kubectl | 1.36 | Deploy to and inspect Kubernetes clusters |
+| Helm | 4.1.4 | Install and manage Helm charts |
+| k3d | 5.8.3 | Local Kubernetes cluster (auto-started on container start) |
 | git | latest | Source control |
 | GitHub CLI (`gh`) | latest | PRs, issues, releases, Actions |
 | openclaw.ai | latest | AI agent tooling (installed on create) |
@@ -86,7 +86,7 @@ pytest --cov=src --cov-report=term-missing
 
 ### Deploying a Python service to local Kubernetes
 
-minikube starts automatically. Build and deploy with Helm:
+A k3d cluster starts automatically when the container starts. Build and deploy with Helm:
 
 ```bash
 docker build -t my-api:local .
