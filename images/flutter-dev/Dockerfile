@@ -3,8 +3,8 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 # Copy openclaw CLI from the official image.
 # The wrapper script calls `node /opt/openclaw/app/openclaw.mjs` — we need both the
 # app bundle and the wrapper so `openclaw node run` works inside k8s devcontainer pods.
-COPY --from=coollabsio/openclaw:2026.5.7 /opt/openclaw /opt/openclaw
-COPY --from=coollabsio/openclaw:2026.5.7 /usr/local/bin/openclaw /usr/local/bin/openclaw
+COPY --from=coollabsio/openclaw:2026.5 /opt/openclaw /opt/openclaw
+COPY --from=coollabsio/openclaw:2026.5 /usr/local/bin/openclaw /usr/local/bin/openclaw
 
 # Install Flutter SDK directly — avoids relying on the devcontainers-contrib community
 # feature registry which is not reliably accessible from CI runners.
