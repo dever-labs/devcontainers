@@ -12,5 +12,5 @@ else
   echo "Run 'copilot auth login' to authenticate GitHub Copilot CLI."
 fi
 
-echo "==> Installing k3d..."
-curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+echo "==> Installing k3d v5.8.3..."
+curl -fsSL https://raw.githubusercontent.com/k3d-io/k3d/v5.8.3/install.sh | TAG=v5.8.3 bash

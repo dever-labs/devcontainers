@@ -29,10 +29,11 @@
     }
   },
 
-  "postCreateCommand": "npm install -g @github/copilot @anthropic-ai/claude-code && sudo ln -sf $(npm prefix -g)/bin/copilot /usr/local/bin/copilot && sudo ln -sf $(npm prefix -g)/bin/claude /usr/local/bin/claude && curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash",
+  "postCreateCommand": "npm install -g @github/copilot @anthropic-ai/claude-code && sudo ln -sf $(npm prefix -g)/bin/copilot /usr/local/bin/copilot && sudo ln -sf $(npm prefix -g)/bin/claude /usr/local/bin/claude && curl -fsSL https://raw.githubusercontent.com/k3d-io/k3d/v5.8.3/install.sh | TAG=v5.8.3 bash",
 
-  // k3d is idempotent: create cluster on first start, start existing cluster on subsequent starts.
-  "postStartCommand": "k3d cluster list | grep -q devcontainer && k3d cluster start devcontainer || k3d cluster create devcontainer",
+  // k3d cluster lifecycle: create (with devcontainer network) on first start, resume on restart.
+  // kubeconfig is merged with --internal so kubectl reaches the k3s API from inside the container.
+  "postStartCommand": "if k3d cluster list 2>/dev/null | grep -q devcontainer; then k3d cluster start devcontainer; else NET=$(docker inspect $(hostname) --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}' 2>/dev/null | awk '{print $1}'); k3d cluster create devcontainer ${NET:+--network $NET}; fi; k3d kubeconfig merge devcontainer --kubeconfig-merge-default --internal",
 
   "mounts": [
     // Persist gh credentials across all dever-labs devcontainers.
