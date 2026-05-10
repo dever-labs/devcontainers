@@ -13,11 +13,11 @@
     },
     // Docker-outside-of-Docker — mounts host socket, no nested daemon, no privileged container
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
-    // kubectl + Helm — local cluster management via k3d; minikube binary included but unused
+    // kubectl + Helm — local cluster management via k3d
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
       "version": "1.36",
       "helm": "4.1.4",
-      "minikube": "1.38.1"
+      "minikube": "none"
     },
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {
