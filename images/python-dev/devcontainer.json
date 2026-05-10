@@ -3,7 +3,7 @@
   // This file is used by CI to build and push the image to GHCR.
   // Service repos reference the resulting image — they do not build it themselves.
   "name": "python-dev",
-  "build": { "dockerfile": "Dockerfile" },
+  "build": { "dockerfile": "Dockerfile", "context": "../" },
 
   "features": {
     // Python — pin to major.minor so patch updates flow automatically
@@ -16,12 +16,12 @@
     // kubectl + Helm — local cluster management via k3d
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
       "version": "1.36",
-      "helm": "4.1.4",
+      "helm": "4.1",
       "minikube": "none"
     },
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {
-      "version": "2.92.0"
+      "version": "2.92"
     },
     // Node.js stable — required for Claude Code CLI
     "ghcr.io/devcontainers/features/node:1": {
@@ -36,7 +36,7 @@
 
   // k3d cluster lifecycle: create (with devcontainer network) on first start, resume on restart.
   // kubeconfig is merged with --internal so kubectl reaches the k3s API from inside the container.
-  "postStartCommand": "if k3d cluster list 2>/dev/null | grep -q devcontainer; then k3d cluster start devcontainer; else NET=$(docker inspect $(hostname) --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{\"\\n\"}}{{end}}' 2>/dev/null | grep -Ev \"^(bridge|host|none)\\$\" | head -1); k3d cluster create devcontainer ${NET:+--network $NET}; fi; k3d kubeconfig merge devcontainer --kubeconfig-merge-default --internal",
+  "postStartCommand": "k3d-cluster-init",
 
   "mounts": [
     // Persist gh credentials across all dever-labs devcontainers.

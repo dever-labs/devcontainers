@@ -1,0 +1,15 @@
+#!/bin/sh
+# k3d cluster lifecycle: create (with devcontainer network) on first start, resume on restart.
+# kubeconfig is merged with --internal so kubectl reaches the k3s API from inside the container.
+set -e
+
+if k3d cluster list 2>/dev/null | grep -q devcontainer; then
+  k3d cluster start devcontainer
+else
+  NET=$(docker inspect "$(hostname)" \
+    --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{"\n"}}{{end}}' \
+    2>/dev/null | grep -Ev "^(bridge|host|none)$" | head -1)
+  k3d cluster create devcontainer ${NET:+--network $NET}
+fi
+
+k3d kubeconfig merge devcontainer --kubeconfig-merge-default --internal

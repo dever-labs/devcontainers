@@ -9,7 +9,7 @@
   // NOTE: iOS builds require macOS and cannot run inside this Linux container.
   // Use a macOS GitHub Actions runner for iOS CI builds.
   "name": "flutter-dev",
-  "build": { "dockerfile": "Dockerfile" },
+  "build": { "dockerfile": "Dockerfile", "context": "../" },
 
   "features": {
     // Node.js stable — required for Claude Code CLI
@@ -19,7 +19,7 @@
     },
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {
-      "version": "2.92.0"
+      "version": "2.92"
     }
   },
 
