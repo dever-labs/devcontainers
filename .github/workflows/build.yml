@@ -32,11 +32,11 @@ jobs:
             if [ -n "$INPUT" ]; then
               IMAGES=$(echo "$INPUT" | jq -R -c '[.]')
             else
-              IMAGES=$(ls images/ | jq -R -s -c 'split("\n") | map(select(length > 0))')
+              IMAGES=$(find images -maxdepth 2 -name "devcontainer.json" | sed 's|images/||;s|/devcontainer.json||' | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')
             fi
           else
             # On push to main or a version tag, rebuild all images
-            IMAGES=$(ls images/ | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            IMAGES=$(find images -maxdepth 2 -name "devcontainer.json" | sed 's|images/||;s|/devcontainer.json||' | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')
           fi
           echo "images=$IMAGES" >> $GITHUB_OUTPUT
 
