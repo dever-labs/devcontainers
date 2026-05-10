@@ -11,3 +11,6 @@ if ls ~/.copilot/*.json &>/dev/null 2>&1; then
 else
   echo "Run 'copilot auth login' to authenticate GitHub Copilot CLI."
 fi
+
+echo "==> Installing k3d..."
+curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
