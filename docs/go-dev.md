@@ -7,10 +7,10 @@ Pre-built devcontainer for Go projects — microservices, CLIs, Kubernetes opera
 | Tool | Version | Purpose |
 |------|---------|---------|
 | Go | latest | Runtime, compiler, toolchain |
-| Docker-in-Docker | latest | Build images, run containers inside the devcontainer |
-| kubectl | latest | Deploy to and inspect Kubernetes clusters |
-| Helm | latest | Install and manage Helm charts |
-| minikube | latest | Local Kubernetes cluster (auto-started on container start) |
+| Docker-outside-of-Docker | latest | Build images and run containers via the host Docker socket |
+| kubectl | 1.36 | Deploy to and inspect Kubernetes clusters |
+| Helm | 4.1.4 | Install and manage Helm charts |
+| k3d | 5.8.3 | Local Kubernetes cluster (auto-started on container start) |
 | git | latest | Source control |
 | GitHub CLI (`gh`) | latest | PRs, issues, releases, Actions |
 | openclaw.ai | latest | AI agent tooling (installed on create) |
@@ -61,11 +61,11 @@ air
 
 ### Kubernetes operator
 
-minikube starts automatically. Build and load your operator image directly:
+A k3d cluster starts automatically. Build and import your operator image directly:
 
 ```bash
 docker build -t my-operator:local .
-minikube image load my-operator:local
+k3d image import my-operator:local -c devcontainer
 kubectl apply -f config/
 ```
 
@@ -90,7 +90,7 @@ go tool cover -html=coverage.out
 - `GITHUB_TOKEN` is forwarded so `gh` and git work without prompts.
 - `golang.go` extension gives agents precise symbol resolution and type info via gopls.
 - Claude Code and Copilot extensions are pre-installed.
-- Agents can run `go test ./...`, build binaries, and deploy to minikube without leaving the container.
+- Agents can run `go test ./...`, build binaries, and deploy to the local k3d cluster without leaving the container.
 
 ## Updating Go
 

@@ -11,10 +11,10 @@ Pre-built devcontainer for infrastructure and platform engineering — Terraform
 | AWS CLI v2 | latest | AWS resource management |
 | Google Cloud SDK (`gcloud`) | latest | GCP resource management |
 | ArgoCD CLI | latest | GitOps deployments |
-| Docker-in-Docker | latest | Build images, run containers inside the devcontainer |
-| kubectl | latest | Kubernetes cluster management |
-| Helm | latest | Helm chart installation and management |
-| minikube | latest | Local Kubernetes cluster (auto-started on container start) |
+| Docker-outside-of-Docker | latest | Build images and run containers via the host Docker socket |
+| kubectl | 1.36 | Kubernetes cluster management |
+| Helm | 4.1.4 | Helm chart installation and management |
+| k3d | 5.8.3 | Local Kubernetes cluster (auto-started on container start) |
 | git | latest | Source control |
 | GitHub CLI (`gh`) | latest | PRs, issues, releases, Actions |
 | openclaw.ai | latest | AI agent tooling (installed on create) |
@@ -93,7 +93,7 @@ argocd app wait my-app --health
 
 ### Local Kubernetes with Helm
 
-minikube starts automatically. Install and iterate on charts locally before promoting to a real cluster:
+A k3d cluster starts automatically. Install and iterate on charts locally before promoting to a real cluster:
 
 ```bash
 helm upgrade --install my-stack ./charts/my-stack \
@@ -114,10 +114,10 @@ go test -v -timeout 30m ./...
 
 - `GITHUB_TOKEN` is forwarded so `gh` and git work without prompts.
 - Claude Code and Copilot extensions are pre-installed.
-- Agents can run `terraform plan`, validate Kubernetes manifests with `kubectl apply --dry-run=client`, and iterate on Helm charts against minikube without leaving the container.
+- Agents can run `terraform plan`, validate Kubernetes manifests with `kubectl apply --dry-run=client`, and iterate on Helm charts against the local k3d cluster without leaving the container.
 - Forward cloud credentials via `remoteEnv` in service-repo devcontainer for fully autonomous provisioning agents.
 
 ## Notes
 
 - **First cloud login after container create**: interactive `az login`, `aws configure`, or `gcloud auth login` is required unless credentials are forwarded via `remoteEnv`.
-- **minikube** auto-starts with the `docker` driver. If Docker-in-Docker is slow to initialise, the start may take 30–60 seconds on first run.
+- **k3d** auto-starts with the container and is ready in ~15–45 seconds. The cluster joins the devcontainer's Docker network so `kubectl` and `helm` work immediately without port-forwarding tricks.

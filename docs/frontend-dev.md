@@ -8,10 +8,10 @@ Pre-built devcontainer for frontend applications — React, Vue, Angular, Next.j
 |------|---------|---------|
 | Node.js | 26 | Runtime and package management |
 | npm / pnpm / yarn | via corepack | Package managers (`corepack enable pnpm` to activate pnpm) |
-| Docker-in-Docker | 29 | Build images, run containers inside the devcontainer |
+| Docker-outside-of-Docker | latest | Build images and run containers via the host Docker socket |
 | kubectl | 1.36 | Deploy to and inspect Kubernetes clusters |
 | Helm | 4.1.4 | Install and manage Helm charts |
-| minikube | 1.38.1 | Local Kubernetes cluster (auto-started on container start) |
+| k3d | 5.8.3 | Local Kubernetes cluster (auto-started on container start) |
 | git | latest | Source control |
 | GitHub CLI (`gh`) | 2.92.0 | PRs, issues, releases, Actions |
 | openclaw.ai | latest | AI agent tooling (installed on create) |
@@ -75,7 +75,7 @@ Or add it to your service repo's `postCreateCommand`:
 
 ### Deploying a frontend to local Kubernetes
 
-minikube starts automatically. Build an image with Docker-in-Docker and deploy:
+A k3d cluster starts automatically. Build an image and deploy:
 
 ```bash
 docker build -t my-frontend:local .
