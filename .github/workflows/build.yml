@@ -75,11 +75,26 @@ jobs:
         run: |
           ARCH="${{ matrix.platform }}"
           ARCH="${ARCH#linux/}"
+          TAGS="latest-${ARCH}"
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            echo "tags=latest-${ARCH},${{ github.ref_name }}-${ARCH}" >> $GITHUB_OUTPUT
-          else
-            echo "tags=latest-${ARCH}" >> $GITHUB_OUTPUT
+            VERSION="${{ github.ref_name }}"
+            # Strip leading 'v' to split semver parts
+            V="${VERSION#v}"
+            MAJOR="v${V%%.*}"
+            MINOR_REST="${V#*.}"
+            MINOR="v${V%%.*}.${MINOR_REST%%.*}"
+            # Always add the full version tag
+            TAGS="${TAGS},${VERSION}-${ARCH}"
+            # Add minor tag only if it differs from full version (i.e., has patch)
+            if [[ "$MINOR" != "$VERSION" && "$MINOR" != "v$V" ]]; then
+              TAGS="${TAGS},${MINOR}-${ARCH}"
+            fi
+            # Add major tag only if it differs from minor
+            if [[ "$MAJOR" != "$MINOR" && "$MAJOR" != "$VERSION" ]]; then
+              TAGS="${TAGS},${MAJOR}-${ARCH}"
+            fi
           fi
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
 
       - name: Build and push ${{ matrix.image }}
         uses: devcontainers/ci@b63b30de439b47a52267f241112c5b453b673db5 # v0.3
@@ -122,12 +137,34 @@ jobs:
             "${IMAGE}:latest-amd64" \
             "${IMAGE}:latest-arm64"
 
-      - name: Create version manifest
+      - name: Create version manifests
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           IMAGE="${{ env.REGISTRY }}/${{ env.ORG }}/devcontainers/${{ matrix.image }}"
           VERSION="${{ github.ref_name }}"
+          V="${VERSION#v}"
+          MAJOR="v${V%%.*}"
+          MINOR_REST="${V#*.}"
+          MINOR="v${V%%.*}.${MINOR_REST%%.*}"
+
+          # Always publish the full version tag
           docker buildx imagetools create \
             -t "${IMAGE}:${VERSION}" \
             "${IMAGE}:${VERSION}-amd64" \
             "${IMAGE}:${VERSION}-arm64"
+
+          # Publish minor tag (v1.2) if it differs from full (v1.2.3)
+          if [[ "$MINOR" != "$VERSION" && "$MINOR" != "v$V" ]]; then
+            docker buildx imagetools create \
+              -t "${IMAGE}:${MINOR}" \
+              "${IMAGE}:${MINOR}-amd64" \
+              "${IMAGE}:${MINOR}-arm64"
+          fi
+
+          # Publish major tag (v1) if it differs from minor
+          if [[ "$MAJOR" != "$MINOR" && "$MAJOR" != "$VERSION" ]]; then
+            docker buildx imagetools create \
+              -t "${IMAGE}:${MAJOR}" \
+              "${IMAGE}:${MAJOR}-amd64" \
+              "${IMAGE}:${MAJOR}-arm64"
+          fi
