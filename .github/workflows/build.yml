@@ -41,7 +41,7 @@ jobs:
           echo "images=$IMAGES" >> $GITHUB_OUTPUT
 
   build:
-    name: Build ${{ matrix.image }}
+    name: Build ${{ matrix.image }} (${{ matrix.platform }})
     needs: changes
     if: ${{ needs.changes.outputs.images != '[]' }}
     runs-on: ubuntu-latest
@@ -49,6 +49,7 @@ jobs:
       fail-fast: false  # one image failing should not cancel the others
       matrix:
         image: ${{ fromJSON(needs.changes.outputs.images) }}
+        platform: [linux/amd64, linux/arm64]
     permissions:
       contents: read
       packages: write
@@ -69,13 +70,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Determine image tags
+      - name: Determine arch-specific image tags
         id: tags
         run: |
+          ARCH="${{ matrix.platform }}"
+          ARCH="${ARCH#linux/}"
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            echo "tags=latest,${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "tags=latest-${ARCH},${{ github.ref_name }}-${ARCH}" >> $GITHUB_OUTPUT
           else
-            echo "tags=latest" >> $GITHUB_OUTPUT
+            echo "tags=latest-${ARCH}" >> $GITHUB_OUTPUT
           fi
 
       - name: Build and push ${{ matrix.image }}
@@ -85,5 +88,46 @@ jobs:
           imageName: ${{ env.REGISTRY }}/${{ env.ORG }}/devcontainers/${{ matrix.image }}
           imageTag: ${{ steps.tags.outputs.tags }}
           cacheFrom: ${{ env.REGISTRY }}/${{ env.ORG }}/devcontainers/${{ matrix.image }}
-          platform: linux/amd64,linux/arm64
+          platform: ${{ matrix.platform }}
           push: always
+
+  manifest:
+    name: Publish multi-arch manifest (${{ matrix.image }})
+    needs: [changes, build]
+    if: ${{ needs.changes.outputs.images != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJSON(needs.changes.outputs.images) }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
+      - name: Log in to GHCR
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create latest manifest
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ env.ORG }}/devcontainers/${{ matrix.image }}"
+          docker buildx imagetools create \
+            -t "${IMAGE}:latest" \
+            "${IMAGE}:latest-amd64" \
+            "${IMAGE}:latest-arm64"
+
+      - name: Create version manifest
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ env.ORG }}/devcontainers/${{ matrix.image }}"
+          VERSION="${{ github.ref_name }}"
+          docker buildx imagetools create \
+            -t "${IMAGE}:${VERSION}" \
+            "${IMAGE}:${VERSION}-amd64" \
+            "${IMAGE}:${VERSION}-arm64"
