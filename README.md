@@ -31,8 +31,8 @@ Add a `.devcontainer/devcontainer.json` that references the pre-built image. The
   "mounts": [
     // Shared gh credentials — run `gh auth login` once, all dever-labs containers share it.
     "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume",
-    // Shared Copilot CLI credentials — run `copilot /login` once, all containers share it.
-    "source=dever-labs-copilot-config,target=/home/vscode/.copilot,type=volume"
+    // Shared Copilot CLI credentials — run `copilot auth login` once, all containers share it.
+    "source=dever-labs-copilot,target=/home/vscode/.copilot,type=volume"
   ],
 
   "remoteEnv": {
