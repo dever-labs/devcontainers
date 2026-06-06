@@ -6,11 +6,6 @@
   "build": { "dockerfile": "Dockerfile", "context": "../" },
 
   "features": {
-    // Node.js stable with corepack — enables pnpm via `corepack enable pnpm`
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "26",
-      "nodeGypDependencies": false
-    },
     // Docker-outside-of-Docker — mounts host socket, no nested daemon, no privileged container
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
     // kubectl + Helm — local cluster management via k3d
@@ -24,12 +19,6 @@
       "version": "2.92"
     }
   },
-
-  "postCreateCommand": "npm install -g @github/copilot @anthropic-ai/claude-code && sudo ln -sf $(npm prefix -g)/bin/copilot /usr/local/bin/copilot && sudo ln -sf $(npm prefix -g)/bin/claude /usr/local/bin/claude && curl -fsSL https://raw.githubusercontent.com/k3d-io/k3d/v5.8.3/install.sh | TAG=v5.8.3 bash",
-
-  // k3d cluster lifecycle: create (with devcontainer network) on first start, resume on restart.
-  // kubeconfig is merged with --internal so kubectl reaches the k3s API from inside the container.
-  "postStartCommand": "k3d-cluster-init",
 
   "remoteEnv": {
     "PATH": "/usr/local/bin:${containerEnv:PATH}",

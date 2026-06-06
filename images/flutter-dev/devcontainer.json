@@ -12,11 +12,6 @@
   "build": { "dockerfile": "Dockerfile", "context": "../" },
 
   "features": {
-    // Node.js stable — required for Claude Code CLI
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "26",
-      "nodeGypDependencies": false
-    },
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {
       "version": "2.92"
@@ -27,10 +22,6 @@
     "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
     "PATH": "/home/vscode/flutter/bin:/home/vscode/flutter/bin/cache/dart-sdk/bin:${containerEnv:PATH}"
   },
-
-  // Install Copilot + Claude Code CLIs and symlink into /usr/local/bin so they are
-  // always on PATH and shadow any VS Code injected binaries.
-  "postCreateCommand": "npm install -g @github/copilot @anthropic-ai/claude-code && sudo ln -sf $(npm prefix -g)/bin/copilot /usr/local/bin/copilot && sudo ln -sf $(npm prefix -g)/bin/claude /usr/local/bin/claude",
 
   "mounts": [
     // Persist gh credentials across all dever-labs devcontainers.

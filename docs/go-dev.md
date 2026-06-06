@@ -13,7 +13,6 @@ Pre-built devcontainer for Go projects — microservices, CLIs, Kubernetes opera
 | k3d | 5.8.3 | Local Kubernetes cluster (auto-started on container start) |
 | git | latest | Source control |
 | GitHub CLI (`gh`) | latest | PRs, issues, releases, Actions |
-| openclaw.ai | latest | AI agent tooling (installed on create) |
 
 ## VS Code extensions
 

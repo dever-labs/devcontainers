@@ -40,6 +40,11 @@ Add a `.devcontainer/devcontainer.json` that references the pre-built image. The
     "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
   },
 
+  // Images with k3d (dotnet-dev, go-dev, frontend-dev, python-dev, infra-dev) include
+  // k3d-cluster-init. Add this to auto-start a local cluster on each container start.
+  // Set K3D_CLUSTER_NAME in remoteEnv to isolate clusters when multiple repos are open.
+  // "postStartCommand": "k3d-cluster-init",
+
   "customizations": {
     "vscode": {
       "extensions": [
@@ -72,18 +77,6 @@ Claude Code is pre-installed as a VS Code extension (`anthropics.claude-code`). 
 docker run --rm -it ghcr.io/dever-labs/devcontainers/dotnet-dev:latest bash
 ```
 
-### openclaw
-
-[openclaw](https://openclaw.ai) is an AI agent platform that uses these devcontainers as sandboxed execution environments for code changes. openclaw itself is **not** installed inside the containers — it runs externally and connects to them.
-
-Two deployment modes:
-
-**Host install** — openclaw runs on a developer's machine and spins up devcontainers locally via Docker. Each devcontainer provides the right toolchain for the work at hand (e.g. `go-dev` for Go repos, `python-dev` for Python repos).
-
-**Kubernetes install** — openclaw is deployed as a pod in a cluster and spawns devcontainers as isolated workloads. The same images work in both modes — they are headless-compatible and include all CLI tools the agent needs.
-
-Inside every container, Claude Code (`@anthropic-ai/claude-code`) is available as the agent's code-editing interface.
-
 ### Authentication
 
 All images mount a shared Docker volume — `dever-labs-gh-config` — to `~/.config/gh`. Authenticate once inside any container and every dever-labs devcontainer picks it up automatically, across rebuilds and repos.
@@ -95,7 +88,7 @@ gh auth login
 
 Docker volumes are OS-agnostic — this works on macOS, Linux, and Windows without any host path configuration.
 
-For AI agents (Copilot coding agent, Claude Code, openclaw), `GITHUB_TOKEN` is forwarded from the platform environment via `remoteEnv` and takes precedence over the volume credentials.
+For AI agents (Copilot coding agent, Claude Code), `GITHUB_TOKEN` is forwarded from the platform environment via `remoteEnv` and takes precedence over the volume credentials.
 
 → [Full authentication guide](docs/github-auth.md)
 

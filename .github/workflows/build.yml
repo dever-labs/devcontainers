@@ -109,7 +109,7 @@ jobs:
   manifest:
     name: Publish multi-arch manifest (${{ matrix.image }})
     needs: [changes, build]
-    if: ${{ needs.changes.outputs.images != '[]' }}
+    if: ${{ !cancelled() && needs.changes.outputs.images != '[]' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -132,10 +132,15 @@ jobs:
       - name: Create latest manifest
         run: |
           IMAGE="${{ env.REGISTRY }}/${{ env.ORG }}/devcontainers/${{ matrix.image }}"
-          docker buildx imagetools create \
-            -t "${IMAGE}:latest" \
-            "${IMAGE}:latest-amd64" \
-            "${IMAGE}:latest-arm64"
+          if docker buildx imagetools inspect "${IMAGE}:latest-amd64" &>/dev/null \
+            && docker buildx imagetools inspect "${IMAGE}:latest-arm64" &>/dev/null; then
+            docker buildx imagetools create \
+              -t "${IMAGE}:latest" \
+              "${IMAGE}:latest-amd64" \
+              "${IMAGE}:latest-arm64"
+          else
+            echo "Skipping manifest for ${{ matrix.image }}: one or both arch builds are missing"
+          fi
 
       - name: Create version manifests
         if: startsWith(github.ref, 'refs/tags/')
@@ -146,6 +151,13 @@ jobs:
           MAJOR="v${V%%.*}"
           MINOR_REST="${V#*.}"
           MINOR="v${V%%.*}.${MINOR_REST%%.*}"
+
+          # Only publish if both arch images exist
+          if ! docker buildx imagetools inspect "${IMAGE}:${VERSION}-amd64" &>/dev/null \
+            || ! docker buildx imagetools inspect "${IMAGE}:${VERSION}-arm64" &>/dev/null; then
+            echo "Skipping version manifests for ${{ matrix.image }}: one or both arch builds are missing"
+            exit 0
+          fi
 
           # Always publish the full version tag
           docker buildx imagetools create \

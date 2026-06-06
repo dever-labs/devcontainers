@@ -22,21 +22,8 @@
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {
       "version": "2.92"
-    },
-    // Node.js stable — required for Claude Code CLI
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "26",
-      "nodeGypDependencies": false
     }
   },
-
-  // postCreateCommand runs on every create AND rebuild — ensures binaries are always present.
-  // Symlink into /usr/local/bin so they shadow VS Code's own copilot injected by vscode-server.
-  "postCreateCommand": "npm install -g @github/copilot @anthropic-ai/claude-code && sudo ln -sf $(npm prefix -g)/bin/copilot /usr/local/bin/copilot && sudo ln -sf $(npm prefix -g)/bin/claude /usr/local/bin/claude && curl -fsSL https://raw.githubusercontent.com/k3d-io/k3d/v5.8.3/install.sh | TAG=v5.8.3 bash",
-
-  // k3d cluster lifecycle: create (with devcontainer network) on first start, resume on restart.
-  // kubeconfig is merged with --internal so kubectl reaches the k3s API from inside the container.
-  "postStartCommand": "k3d-cluster-init",
 
   "mounts": [
     // Persist gh credentials across all dever-labs devcontainers.

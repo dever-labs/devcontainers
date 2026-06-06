@@ -14,7 +14,6 @@ Pre-built devcontainer for frontend applications — React, Vue, Angular, Next.j
 | k3d | 5.8.3 | Local Kubernetes cluster (auto-started on container start) |
 | git | latest | Source control |
 | GitHub CLI (`gh`) | 2.92.0 | PRs, issues, releases, Actions |
-| openclaw.ai | latest | AI agent tooling (installed on create) |
 
 ## VS Code extensions
 
@@ -92,12 +91,10 @@ helm upgrade --install my-frontend ./charts/my-frontend \
 
 ## Updating Node.js
 
-Edit `images/frontend-dev/devcontainer.json`:
+Edit `images/frontend-dev/Dockerfile` and change the NodeSource channel:
 
-```jsonc
-"ghcr.io/devcontainers/features/node:1": {
-  "version": "26"   // pin to a specific major
-}
+```dockerfile
+&& echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_26.x nodistro main" \
 ```
 
-Push to `main` — all service repos pick it up on next rebuild.
+Replace `node_26.x` with the desired major version (e.g. `node_28.x`).

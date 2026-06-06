@@ -1,19 +1,15 @@
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 
-# Copy openclaw CLI from the official image.
-# The wrapper script calls `node /opt/openclaw/app/openclaw.mjs` — we need both the
-# app bundle and the wrapper so `openclaw node run` works inside k8s devcontainer pods.
-COPY --from=coollabsio/openclaw:2026.5.7 /opt/openclaw /opt/openclaw
-COPY --from=coollabsio/openclaw:2026.5.7 /usr/local/bin/openclaw /usr/local/bin/openclaw
-
 # Install Flutter SDK directly — avoids relying on the devcontainers-contrib community
 # feature registry which is not reliably accessible from CI runners.
 ARG FLUTTER_VERSION=3.41.9
 ARG FLUTTER_CHANNEL=stable
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     curl \
     git \
+    gnupg \
     unzip \
     xz-utils \
     zip \
@@ -25,6 +21,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgtk-3-dev \
     liblzma-dev \
     libstdc++-12-dev \
+    && mkdir -p /etc/apt/keyrings \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
+       | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_26.x nodistro main" \
+       > /etc/apt/sources.list.d/nodesource.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends nodejs \
+    && npm install -g @github/copilot @anthropic-ai/claude-code \
+    && ln -sf "$(npm prefix -g)/bin/copilot" /usr/local/bin/copilot \
+    && ln -sf "$(npm prefix -g)/bin/claude" /usr/local/bin/claude \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install Flutter as the vscode user

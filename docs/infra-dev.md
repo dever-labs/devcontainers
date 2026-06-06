@@ -17,7 +17,6 @@ Pre-built devcontainer for infrastructure and platform engineering — Terraform
 | k3d | 5.8.3 | Local Kubernetes cluster (auto-started on container start) |
 | git | latest | Source control |
 | GitHub CLI (`gh`) | latest | PRs, issues, releases, Actions |
-| openclaw.ai | latest | AI agent tooling (installed on create) |
 
 > AWS CLI, GCP SDK, and ArgoCD CLI are installed via shell on container create because the devcontainers-contrib features have known CI reliability issues.
 

@@ -13,7 +13,6 @@ Pre-built devcontainer for Flutter applications — iOS, Android, Web, Linux, ma
 | Node.js | LTS | Required for Claude Code CLI |
 | git | latest | Source control |
 | GitHub CLI (`gh`) | latest | PRs, issues, releases, Actions |
-| openclaw.ai | latest | AI agent tooling (installed on create) |
 
 ## VS Code extensions
 
