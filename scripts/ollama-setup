@@ -2,6 +2,8 @@
 # ollama-setup — run once on your host machine (not inside a devcontainer).
 # Installs Ollama if missing, starts it, pulls the default AI coding models,
 # and verifies the setup is ready for use with devcontainers.
+#
+# Opt out by setting SKIP_OLLAMA_SETUP=1 in your shell profile (~/.zshrc / ~/.bashrc).
 set -euo pipefail
 
 GREEN='\033[0;32m'
@@ -17,6 +19,12 @@ ok()   { echo -e "${GREEN}✓${NC} $*"; }
 warn() { echo -e "${YELLOW}⚠${NC}  $*"; }
 fail() { echo -e "${RED}✗${NC} $*"; }
 step() { echo -e "\n${BOLD}$*${NC}"; }
+
+# Opt-out: add SKIP_OLLAMA_SETUP=1 to ~/.zshrc or ~/.bashrc to disable
+if [[ "${SKIP_OLLAMA_SETUP:-}" == "1" ]]; then
+  echo "  Skipping Ollama setup (SKIP_OLLAMA_SETUP=1)"
+  exit 0
+fi
 
 # ---------------------------------------------------------------------------
 # 1. Install Ollama if missing
