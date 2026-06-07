@@ -38,6 +38,7 @@ jobs:
           publish-features: true
           base-path-to-features: features/src
           generate-docs: true
+          disable-repo-tagging: true
           oci-registry: ${{ env.REGISTRY }}
           features-namespace: ${{ env.ORG }}/devcontainer-features
 
