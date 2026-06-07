@@ -69,7 +69,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 3. Pull default models
+# 3. Pull default models (background — non-blocking)
 # ---------------------------------------------------------------------------
 
 step "3. Pulling default models..."
@@ -80,9 +80,8 @@ for model in "${DEFAULT_MODELS[@]}"; do
   if echo "${AVAILABLE}" | grep -qF "${model}"; then
     ok "${model} already present"
   else
-    echo -e "  ${YELLOW}↓${NC} Pulling ${model} (this may take a while)..."
-    ollama pull "${model}"
-    ok "${model} pulled"
+    warn "${model} not found — pulling in background (first use may be slow until complete)"
+    nohup bash -c "ollama pull '${model}' >> /tmp/ollama-pull-${model//[:\/]/-}.log 2>&1" &
   fi
 done
 
