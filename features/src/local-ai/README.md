@@ -48,7 +48,7 @@ codex auth     # follow prompts
 Host machine
 └── Ollama (native process, port 11434)
     ├── qwen2.5-coder:14b
-    └── deepseek-coder:16b
+    └── deepseek-coder-v2:16b
          │
          │  HTTP API (host.docker.internal:11434)
          │
@@ -78,7 +78,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 **Pull the default models:**
 ```bash
 ollama pull qwen2.5-coder:14b
-ollama pull deepseek-coder:16b
+ollama pull deepseek-coder-v2:16b
 ```
 
 **Start Ollama** (if not already running):

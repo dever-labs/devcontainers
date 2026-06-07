@@ -63,7 +63,7 @@ if [[ -n "$OLLAMA_URL" ]]; then
   # 3. Pull default models if not already present (background, non-blocking)
   # -------------------------------------------------------------------------
 
-  DEFAULT_MODELS=("qwen2.5-coder:14b" "deepseek-coder:16b")
+  DEFAULT_MODELS=("qwen2.5-coder:14b" "deepseek-coder-v2:16b")
   AVAILABLE_MODELS=$(curl -sf "${OLLAMA_URL}/api/tags" || echo "")
 
   for model in "${DEFAULT_MODELS[@]}"; do
@@ -149,7 +149,7 @@ EOF
     {
       "title": "DeepSeek Coder 16B",
       "provider": "ollama",
-      "model": "deepseek-coder:16b",
+      "model": "deepseek-coder-v2:16b",
       "apiBase": "${OLLAMA_URL}"
     }
   ],
