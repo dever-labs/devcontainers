@@ -23,7 +23,7 @@ Features are opt-in add-ons that layer on top of any base image. Add them to you
 
 | Feature | Reference | What it adds |
 |---------|-----------|--------------|
-| [`local-ai`](features/src/local-ai/README.md) | `ghcr.io/dever-labs/devcontainer-features/local-ai:1` | Aider, Codex CLI, Copilot CLI, Claude Code, Continue.dev — connected to host Ollama |
+| [`local-ai`](features/src/local-ai/README.md) | `ghcr.io/dever-labs/devcontainers/features/local-ai:1` | Aider, Codex CLI, Copilot CLI, Claude Code, Continue.dev — connected to host Ollama |
 
 ## Using an image in a service repo
 
@@ -40,7 +40,7 @@ Add a `.devcontainer/devcontainer.json` that references the pre-built image. The
     // Local AI tooling — Aider, Codex CLI, Copilot CLI, Claude Code, Continue.dev.
     // Handles credential volumes, VS Code extensions, and Ollama config automatically.
     // Requires Ollama on the host: https://ollama.com
-    "ghcr.io/dever-labs/devcontainer-features/local-ai:1": {}
+    "ghcr.io/dever-labs/devcontainers/features/local-ai:1": {}
   },
 
   "remoteEnv": {

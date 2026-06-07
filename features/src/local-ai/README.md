@@ -97,7 +97,7 @@ Add to your project's `.devcontainer/devcontainer.json`:
   "image": "ghcr.io/dever-labs/devcontainers/dotnet-dev:latest",
 
   "features": {
-    "ghcr.io/dever-labs/devcontainer-features/local-ai:1": {}
+    "ghcr.io/dever-labs/devcontainers/features/local-ai:1": {}
   }
 }
 ```

@@ -35,5 +35,5 @@ jobs:
         run: |
           devcontainer features publish \
             --registry ${{ env.REGISTRY }} \
-            --namespace ${{ env.ORG }}/devcontainer-features \
+            --namespace ${{ env.ORG }}/devcontainers/features \
             ./features/src
