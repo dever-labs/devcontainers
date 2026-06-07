@@ -1,8 +1,8 @@
 {
   "id": "local-ai",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "name": "Local AI Tooling",
-  "description": "Installs Aider and Codex CLI, and connects to a shared Ollama instance running on the host machine.",
+  "description": "Installs Aider, Codex CLI, GitHub Copilot CLI, and Claude Code, and connects them to a shared Ollama instance running on the host machine.",
 
   "containerEnv": {
     "OLLAMA_HOST": "http://host.docker.internal:11434"
@@ -10,9 +10,35 @@
 
   "postStartCommand": "ollama-connect",
 
+  "mounts": [
+    {
+      "source": "dever-labs-gh-config",
+      "target": "/home/vscode/.config/gh",
+      "type": "volume"
+    },
+    {
+      "source": "dever-labs-copilot",
+      "target": "/home/vscode/.copilot",
+      "type": "volume"
+    },
+    {
+      "source": "dever-labs-claude",
+      "target": "/home/vscode/.claude",
+      "type": "volume"
+    },
+    {
+      "source": "dever-labs-codex",
+      "target": "/home/vscode/.codex",
+      "type": "volume"
+    }
+  ],
+
   "customizations": {
     "vscode": {
       "extensions": [
+        "github.copilot",
+        "github.copilot-chat",
+        "anthropics.claude-code",
         "Continue.continue"
       ]
     }

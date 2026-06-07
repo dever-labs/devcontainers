@@ -17,6 +17,14 @@ All service repos reference an image from here. No per-repo builds, no drift bet
 
 All images include: **git**, **GitHub CLI**, **GitHub Copilot**, and **Claude Code** (VS Code extension + CLI).
 
+## Available features
+
+Features are opt-in add-ons that layer on top of any base image. Add them to your project's `.devcontainer/devcontainer.json`.
+
+| Feature | Reference | What it adds |
+|---------|-----------|--------------|
+| [`local-ai`](features/src/local-ai/README.md) | `ghcr.io/dever-labs/devcontainer-features/local-ai:1` | Aider, Codex CLI, Copilot CLI, Claude Code, Continue.dev — connected to host Ollama |
+
 ## Using an image in a service repo
 
 Add a `.devcontainer/devcontainer.json` that references the pre-built image. The devcontainer spec doesn't support inheritance, so a small set of runtime properties (mounts, env, extensions) must be repeated in each repo. Copy the template below and add your repo-specific extensions at the bottom.
@@ -28,35 +36,29 @@ Add a `.devcontainer/devcontainer.json` that references the pre-built image. The
   // Available: dotnet-dev, frontend-dev, python-dev, go-dev, flutter-dev, infra-dev
   "image": "ghcr.io/dever-labs/devcontainers/<name>:latest",
 
-  "mounts": [
-    // Shared gh credentials — run `gh auth login` once, all dever-labs containers share it.
-    "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume",
-    // Shared Copilot CLI credentials — run `copilot auth login` once, all containers share it.
-    "source=dever-labs-copilot,target=/home/vscode/.copilot,type=volume"
-  ],
+  "features": {
+    // Local AI tooling — Aider, Codex CLI, Copilot CLI, Claude Code, Continue.dev.
+    // Handles credential volumes, VS Code extensions, and Ollama config automatically.
+    // Requires Ollama on the host: https://ollama.com
+    "ghcr.io/dever-labs/devcontainer-features/local-ai:1": {}
+  },
 
   "remoteEnv": {
     // Forward host GitHub token so AI agents can authenticate without re-login.
     "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
   },
 
-  // Runs on the HOST before the container starts — starts Ollama if it isn't already running.
+  // Runs on the HOST before the container starts — starts Ollama if not already running.
   // Ollama is shared across all devcontainers; only one instance runs at a time.
-  // Install Ollama once: https://ollama.com  |  Pull models: ollama pull qwen2.5-coder:14b
   "initializeCommand": "bash -c 'curl -sf --max-time 1 http://localhost:11434/api/tags >/dev/null 2>&1 || (command -v ollama >/dev/null 2>&1 && nohup ollama serve >/tmp/ollama-serve.log 2>&1 &) || true'",
 
   // Images with k3d (dotnet-dev, go-dev, frontend-dev, python-dev, infra-dev) include
   // k3d-cluster-init. Add this to auto-start a local cluster on each container start.
-  // Set K3D_CLUSTER_NAME in remoteEnv to isolate clusters when multiple repos are open.
   // "postStartCommand": "k3d-cluster-init",
 
   "customizations": {
     "vscode": {
       "extensions": [
-        // AI agents — include in every dever-labs devcontainer
-        "github.copilot",
-        "github.copilot-chat",
-        "anthropics.claude-code"
         // Add your stack-specific extensions below
       ]
     }
