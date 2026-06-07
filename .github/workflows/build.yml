@@ -22,6 +22,10 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      # devcontainers/action has not yet shipped a Node.js 24 build; allow Node.js 20
+      # until an updated release is available. Remove once action is updated.
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
