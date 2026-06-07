@@ -15,6 +15,32 @@ env:
   ORG: dever-labs
 
 jobs:
+  # Publish devcontainer features to GHCR before building images that reference them.
+  publish-features:
+    name: Publish features
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish features
+        uses: devcontainers/action@1082abd5d2bf3a11abccba70eef98df068277772 # v1
+        with:
+          publish-features: true
+          base-path-to-features: features/src
+          generate-docs: true
+          oci-registry: ${{ env.REGISTRY }}
+          namespace: ${{ env.ORG }}/devcontainer-features
+
   # Detect which image directories changed so we only rebuild what's needed.
   changes:
     name: Detect changes
@@ -42,7 +68,7 @@ jobs:
 
   build:
     name: Build ${{ matrix.image }} (${{ matrix.platform }})
-    needs: changes
+    needs: [changes, publish-features]
     if: ${{ needs.changes.outputs.images != '[]' }}
     runs-on: ubuntu-latest
     strategy:
