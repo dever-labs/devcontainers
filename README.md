@@ -68,6 +68,16 @@ Add a `.devcontainer/devcontainer.json` that references the pre-built image. The
 
 No build step in the service repo. When the shared image updates, every repo picks it up on the next container rebuild.
 
+## Host setup (Ollama)
+
+The `local-ai` feature connects to Ollama running on your host machine. Run the setup script once to install Ollama, pull the default models, and verify everything works:
+
+```bash
+bash scripts/ollama-setup
+```
+
+This installs Ollama if missing, starts it, pulls `qwen2.5-coder:14b` and `deepseek-coder-v2:16b`, and confirms the API is reachable from devcontainers.
+
 ## Using with AI agents
 
 These images are designed to work as autonomous agent environments, not just IDE containers.
