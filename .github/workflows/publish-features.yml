@@ -36,4 +36,4 @@ jobs:
           base-path-to-features: features/src
           generate-docs: true
           oci-registry: ${{ env.REGISTRY }}
-          namespace: ${{ env.ORG }}/devcontainer-features
+          features-namespace: ${{ env.ORG }}/devcontainer-features
