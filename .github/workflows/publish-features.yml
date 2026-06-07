@@ -18,10 +18,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    env:
-      # devcontainers/action has not yet shipped a Node.js 24 build; allow Node.js 20
-      # until an updated release is available. Remove once action is updated.
-      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
@@ -32,12 +28,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install devcontainers CLI
+        run: npm install -g @devcontainers/cli
+
       - name: Publish features
-        uses: devcontainers/action@1082abd5d2bf3a11abccba70eef98df068277772 # v1
-        with:
-          publish-features: true
-          base-path-to-features: features/src
-          generate-docs: true
-          disable-repo-tagging: true
-          oci-registry: ${{ env.REGISTRY }}
-          features-namespace: ${{ env.ORG }}/devcontainer-features
+        run: |
+          devcontainer features publish \
+            --registry ${{ env.REGISTRY }} \
+            --namespace ${{ env.ORG }}/devcontainer-features \
+            ./features/src
