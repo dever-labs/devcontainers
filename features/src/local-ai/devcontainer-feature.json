@@ -1,0 +1,24 @@
+{
+  "id": "local-ai",
+  "version": "1.0.1",
+  "name": "Local AI Tooling",
+  "description": "Installs Aider and Codex CLI, and connects to a shared Ollama instance running on the host machine.",
+
+  "containerEnv": {
+    "OLLAMA_HOST": "http://host.docker.internal:11434"
+  },
+
+  "postStartCommand": "ollama-connect",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Continue.continue"
+      ]
+    }
+  },
+
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}

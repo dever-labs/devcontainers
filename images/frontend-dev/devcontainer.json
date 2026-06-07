@@ -17,7 +17,9 @@
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {
       "version": "2.92"
-    }
+    },
+    // Local AI tooling — Aider, Codex CLI, Continue.dev; connects to host Ollama
+    "ghcr.io/dever-labs/devcontainer-features/local-ai:1": {}
   },
 
   "remoteEnv": {

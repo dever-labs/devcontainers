@@ -1,0 +1,176 @@
+#!/usr/bin/env bash
+# ollama-connect — run at container start (postStartCommand).
+# Detects the host Ollama endpoint, ensures default models are present,
+# and writes default configs for Aider, Codex, and Continue.dev.
+set -euo pipefail
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+OLLAMA_PORT=11434
+
+# ---------------------------------------------------------------------------
+# 1. Helpers
+# ---------------------------------------------------------------------------
+
+is_reachable() {
+  curl -sf --max-time 2 "$1/api/tags" > /dev/null 2>&1
+}
+
+detect_host_url() {
+  if [[ -n "${OLLAMA_HOST:-}" ]] && is_reachable "${OLLAMA_HOST}"; then
+    echo "${OLLAMA_HOST}"
+    return
+  fi
+
+  # Docker Desktop (macOS / Windows / Linux with Docker Desktop)
+  if is_reachable "http://host.docker.internal:${OLLAMA_PORT}"; then
+    echo "http://host.docker.internal:${OLLAMA_PORT}"
+    return
+  fi
+
+  # Native Linux Docker — extract default gateway from /proc/net/route
+  if [[ -f /proc/net/route ]]; then
+    # Column 2 = Destination (00000000 = default route), column 3 = Gateway (little-endian hex)
+    gateway_hex=$(awk '$2 == "00000000" {print $3; exit}' /proc/net/route)
+    if [[ -n "$gateway_hex" ]]; then
+      gateway_ip=$(printf '%d.%d.%d.%d\n' \
+        "0x${gateway_hex:6:2}" \
+        "0x${gateway_hex:4:2}" \
+        "0x${gateway_hex:2:2}" \
+        "0x${gateway_hex:0:2}")
+      if is_reachable "http://${gateway_ip}:${OLLAMA_PORT}"; then
+        echo "http://${gateway_ip}:${OLLAMA_PORT}"
+        return
+      fi
+    fi
+  fi
+
+  echo ""
+}
+
+# ---------------------------------------------------------------------------
+# 2. Detect Ollama
+# ---------------------------------------------------------------------------
+
+OLLAMA_URL=$(detect_host_url)
+
+if [[ -n "$OLLAMA_URL" ]]; then
+  echo -e "${GREEN}✓ Ollama reachable${NC} at ${OLLAMA_URL}"
+
+  # -------------------------------------------------------------------------
+  # 3. Pull default models if not already present (background, non-blocking)
+  # -------------------------------------------------------------------------
+
+  DEFAULT_MODELS=("qwen2.5-coder:14b" "deepseek-coder:16b")
+  AVAILABLE_MODELS=$(curl -sf "${OLLAMA_URL}/api/tags" || echo "")
+
+  for model in "${DEFAULT_MODELS[@]}"; do
+    if echo "${AVAILABLE_MODELS}" | grep -qF "\"${model}\""; then
+      echo "  Model ${model} already present"
+    else
+      echo "  Pulling ${model} in background — first use may be slow until complete"
+      nohup bash -c "curl -sf -X POST '${OLLAMA_URL}/api/pull' \
+        -H 'Content-Type: application/json' \
+        -d '{\"name\":\"${model}\"}' > /tmp/ollama-pull-${model//:/-}.log 2>&1" &
+    fi
+  done
+
+  # -------------------------------------------------------------------------
+  # 4. Persist OLLAMA_HOST for interactive shells
+  # -------------------------------------------------------------------------
+
+  BASHRC_DIR="${HOME}/.bashrc.d"
+  mkdir -p "${BASHRC_DIR}"
+
+  cat > "${BASHRC_DIR}/ollama.sh" <<EOF
+export OLLAMA_HOST="${OLLAMA_URL}"
+EOF
+
+  if [[ -f "${HOME}/.bashrc" ]] && ! grep -q '.bashrc.d' "${HOME}/.bashrc"; then
+    cat >> "${HOME}/.bashrc" <<'RCEOF'
+
+# Source modular shell additions
+for f in "${HOME}/.bashrc.d/"*.sh; do [ -f "$f" ] && source "$f"; done
+RCEOF
+  fi
+
+  # -------------------------------------------------------------------------
+  # 5. Write Aider config (~/.aider.conf.yml) — skip if already present
+  # -------------------------------------------------------------------------
+
+  AIDER_CONF="${HOME}/.aider.conf.yml"
+  if [[ ! -f "$AIDER_CONF" ]]; then
+    cat > "$AIDER_CONF" <<EOF
+# Aider default config — written by ollama-connect
+model: ollama/qwen2.5-coder:14b
+ollama-api-base: ${OLLAMA_URL}
+EOF
+    echo "  Wrote ${AIDER_CONF}"
+  fi
+
+  # -------------------------------------------------------------------------
+  # 6. Write Codex config (~/.codex/config.toml) — skip if already present
+  # -------------------------------------------------------------------------
+
+  CODEX_CONF="${HOME}/.codex/config.toml"
+  if [[ ! -f "$CODEX_CONF" ]]; then
+    mkdir -p "${HOME}/.codex"
+    cat > "$CODEX_CONF" <<EOF
+# Codex config — written by ollama-connect
+# Requires Ollama >= 0.13.4 (Responses API)
+model = "qwen2.5-coder:14b"
+model_provider = "host-ollama"
+
+[model_providers.host-ollama]
+name = "Ollama (host)"
+base_url = "${OLLAMA_URL}/v1"
+EOF
+    echo "  Wrote ${CODEX_CONF}"
+  fi
+
+  # -------------------------------------------------------------------------
+  # 7. Write Continue.dev config (~/.continue/config.json) — skip if already present
+  # -------------------------------------------------------------------------
+
+  CONTINUE_CONF="${HOME}/.continue/config.json"
+  if [[ ! -f "$CONTINUE_CONF" ]]; then
+    mkdir -p "${HOME}/.continue"
+    cat > "$CONTINUE_CONF" <<EOF
+{
+  "models": [
+    {
+      "title": "Qwen Coder 14B",
+      "provider": "ollama",
+      "model": "qwen2.5-coder:14b",
+      "apiBase": "${OLLAMA_URL}"
+    },
+    {
+      "title": "DeepSeek Coder 16B",
+      "provider": "ollama",
+      "model": "deepseek-coder:16b",
+      "apiBase": "${OLLAMA_URL}"
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "Qwen Coder 14B",
+    "provider": "ollama",
+    "model": "qwen2.5-coder:14b",
+    "apiBase": "${OLLAMA_URL}"
+  }
+}
+EOF
+    echo "  Wrote ${CONTINUE_CONF}"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Warning: initializeCommand appears to be missing
+# ---------------------------------------------------------------------------
+
+if [[ -z "$OLLAMA_URL" ]]; then
+  echo ""
+  echo -e "${YELLOW}⚠  Ollama is not running — AI tools (Aider, Codex, Continue) will not work yet.${NC}"
+  echo "   Start Ollama on your host machine and reopen this terminal."
+fi

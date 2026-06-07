@@ -40,6 +40,11 @@ Add a `.devcontainer/devcontainer.json` that references the pre-built image. The
     "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
   },
 
+  // Runs on the HOST before the container starts — starts Ollama if it isn't already running.
+  // Ollama is shared across all devcontainers; only one instance runs at a time.
+  // Install Ollama once: https://ollama.com  |  Pull models: ollama pull qwen2.5-coder:14b
+  "initializeCommand": "bash -c 'curl -sf --max-time 1 http://localhost:11434/api/tags >/dev/null 2>&1 || (command -v ollama >/dev/null 2>&1 && nohup ollama serve >/tmp/ollama-serve.log 2>&1 &) || true'",
+
   // Images with k3d (dotnet-dev, go-dev, frontend-dev, python-dev, infra-dev) include
   // k3d-cluster-init. Add this to auto-start a local cluster on each container start.
   // Set K3D_CLUSTER_NAME in remoteEnv to isolate clusters when multiple repos are open.

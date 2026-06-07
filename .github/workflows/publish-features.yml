@@ -1,0 +1,39 @@
+name: Publish DevContainer Features
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'features/src/**'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  ORG: dever-labs
+
+jobs:
+  publish:
+    name: Publish features
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish features
+        uses: devcontainers/action@v1
+        with:
+          publish-features: true
+          base-path-to-features: features/src
+          generate-docs: true
+          oci-registry: ${{ env.REGISTRY }}
+          namespace: ${{ env.ORG }}/devcontainer-features
