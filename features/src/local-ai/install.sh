@@ -8,8 +8,10 @@ apt-get update
 apt-get install -y --no-install-recommends python3-pip python3-venv
 
 # aider-chat — install into an isolated venv so it doesn't conflict with system packages
+# setuptools/wheel must be installed explicitly: Python 3.12+ venvs no longer include them
 python3 -m venv /opt/aider
-/opt/aider/bin/pip install --upgrade pip aider-chat
+/opt/aider/bin/pip install --upgrade pip setuptools wheel
+/opt/aider/bin/pip install aider-chat
 ln -sf /opt/aider/bin/aider /usr/local/bin/aider
 
 # @openai/codex — Node.js is already present in all dever-labs base images

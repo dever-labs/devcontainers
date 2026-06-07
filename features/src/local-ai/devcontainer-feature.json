@@ -1,6 +1,6 @@
 {
   "id": "local-ai",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "name": "Local AI Tooling",
   "description": "Installs Aider and Codex CLI, and connects to a shared Ollama instance running on the host machine.",
 
