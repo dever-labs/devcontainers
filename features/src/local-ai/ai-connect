@@ -1,0 +1,240 @@
+#!/usr/bin/env bash
+# ollama-connect — run at container start (postStartCommand).
+# Detects the host AI inference endpoint (MLX-LM or Ollama), ensures models
+# are present, and writes default configs for Aider, Codex, and Continue.dev.
+#
+# Detection order: MLX-LM (port 8080) → Ollama (port 11434)
+# MLX-LM is preferred on Apple Silicon for 20-50% better performance.
+set -euo pipefail
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+MLX_PORT=8080
+OLLAMA_PORT=11434
+DEFAULT_MODEL=$(cat /etc/local-ai/model 2>/dev/null || echo "deepseek-r1:70b")
+AUTOCOMPLETE_MODEL=$(cat /etc/local-ai/autocomplete-model 2>/dev/null || echo "qwen2.5-coder:14b")
+
+if [[ "$AUTOCOMPLETE_MODEL" == "none" ]]; then
+  AUTOCOMPLETE_MODEL="$DEFAULT_MODEL"
+fi
+
+if [[ "$DEFAULT_MODEL" == "none" ]]; then
+  echo "ℹ  Model set to 'none' — skipping AI setup. Copilot CLI and Claude Code are available."
+  exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# 1. Helpers
+# ---------------------------------------------------------------------------
+
+is_ollama() {
+  curl -sf --max-time 2 "$1/api/tags" > /dev/null 2>&1
+}
+
+is_mlx() {
+  curl -sf --max-time 2 "$1/v1/models" > /dev/null 2>&1
+}
+
+try_hosts() {
+  local check_fn="$1"
+  local port="$2"
+
+  # Explicit OLLAMA_HOST override
+  if [[ -n "${OLLAMA_HOST:-}" ]]; then
+    local base="${OLLAMA_HOST%/}"
+    if $check_fn "$base"; then echo "$base"; return; fi
+  fi
+
+  # Docker Desktop
+  if $check_fn "http://host.docker.internal:${port}"; then
+    echo "http://host.docker.internal:${port}"; return
+  fi
+
+  # Native Linux Docker — default gateway
+  if [[ -f /proc/net/route ]]; then
+    local gateway_hex
+    gateway_hex=$(awk '$2 == "00000000" {print $3; exit}' /proc/net/route)
+    if [[ -n "$gateway_hex" ]]; then
+      local gateway_ip
+      gateway_ip=$(printf '%d.%d.%d.%d\n' \
+        "0x${gateway_hex:6:2}" "0x${gateway_hex:4:2}" \
+        "0x${gateway_hex:2:2}" "0x${gateway_hex:0:2}")
+      if $check_fn "http://${gateway_ip}:${port}"; then
+        echo "http://${gateway_ip}:${port}"; return
+      fi
+    fi
+  fi
+
+  echo ""
+}
+
+# ---------------------------------------------------------------------------
+# 2. Detect backend — MLX preferred, Ollama fallback
+# ---------------------------------------------------------------------------
+
+AI_URL=""
+AI_BACKEND=""
+
+MLX_URL=$(try_hosts is_mlx "$MLX_PORT")
+if [[ -n "$MLX_URL" ]]; then
+  AI_URL="$MLX_URL"
+  AI_BACKEND="mlx"
+  echo -e "${GREEN}✓ MLX-LM reachable${NC} at ${AI_URL} (Apple Silicon — faster inference)"
+else
+  OLLAMA_URL=$(try_hosts is_ollama "$OLLAMA_PORT")
+  if [[ -n "$OLLAMA_URL" ]]; then
+    AI_URL="$OLLAMA_URL"
+    AI_BACKEND="ollama"
+    echo -e "${GREEN}✓ Ollama reachable${NC} at ${AI_URL}"
+  fi
+fi
+
+if [[ -n "$AI_URL" ]]; then
+
+  # -------------------------------------------------------------------------
+  # 3. Ensure models are present
+  # -------------------------------------------------------------------------
+
+  if [[ "$AI_BACKEND" == "ollama" ]]; then
+    declare -A SEEN_MODELS
+    MODELS_TO_PULL=()
+    for m in "${DEFAULT_MODEL}" "${AUTOCOMPLETE_MODEL}"; do
+      if [[ -z "${SEEN_MODELS[$m]+_}" ]]; then
+        SEEN_MODELS[$m]=1
+        MODELS_TO_PULL+=("$m")
+      fi
+    done
+
+    AVAILABLE_MODELS=$(curl -sf "${AI_URL}/api/tags" || echo "")
+    for model in "${MODELS_TO_PULL[@]}"; do
+      if echo "${AVAILABLE_MODELS}" | grep -qF "\"${model}\""; then
+        echo "  Model ${model} already present"
+      else
+        echo "  Pulling ${model} in background — first use may be slow until complete"
+        nohup bash -c "curl -sf -X POST '${AI_URL}/api/pull' \
+          -H 'Content-Type: application/json' \
+          -d '{\"name\":\"${model}\"}' > /tmp/ollama-pull-${model//:/-}.log 2>&1" &
+      fi
+    done
+  else
+    # MLX: model is baked into the running server, nothing to pull
+    LOADED_MODEL=$(curl -sf "${AI_URL}/v1/models" | grep -o '"id":"[^"]*"' | head -1 | sed 's/"id":"//;s/"//' || echo "unknown")
+    echo "  Loaded model: ${LOADED_MODEL}"
+  fi
+
+  # -------------------------------------------------------------------------
+  # 4. Persist env vars for interactive shells
+  # -------------------------------------------------------------------------
+
+  BASHRC_DIR="${HOME}/.bashrc.d"
+  mkdir -p "${BASHRC_DIR}"
+
+  if [[ "$AI_BACKEND" == "mlx" ]]; then
+    cat > "${BASHRC_DIR}/ai.sh" <<EOF
+export OPENAI_API_BASE="${AI_URL}/v1"
+export OPENAI_API_KEY="mlx"
+EOF
+  else
+    cat > "${BASHRC_DIR}/ai.sh" <<EOF
+export OLLAMA_HOST="${AI_URL}"
+export OLLAMA_API_BASE="${AI_URL}"
+EOF
+  fi
+
+  if [[ -f "${HOME}/.bashrc" ]] && ! grep -q '.bashrc.d' "${HOME}/.bashrc"; then
+    cat >> "${HOME}/.bashrc" <<'RCEOF'
+
+# Source modular shell additions
+for f in "${HOME}/.bashrc.d/"*.sh; do [ -f "$f" ] && source "$f"; done
+RCEOF
+  fi
+
+  # -------------------------------------------------------------------------
+  # 5. Write Aider config (~/.aider.conf.yml)
+  # -------------------------------------------------------------------------
+
+  AIDER_CONF="${HOME}/.aider.conf.yml"
+  if [[ ! -f "$AIDER_CONF" ]] || grep -q "written by ai-connect" "$AIDER_CONF" 2>/dev/null; then
+    if [[ "$AI_BACKEND" == "mlx" ]]; then
+      cat > "$AIDER_CONF" <<EOF
+# Aider default config — written by ai-connect
+model: openai/${DEFAULT_MODEL}
+openai-api-base: ${AI_URL}/v1
+openai-api-key: mlx
+EOF
+    else
+      cat > "$AIDER_CONF" <<EOF
+# Aider default config — written by ai-connect
+model: ollama/${DEFAULT_MODEL}
+EOF
+    fi
+    echo "  Wrote ${AIDER_CONF}"
+  fi
+
+  # -------------------------------------------------------------------------
+  # 6. Write Codex config (~/.codex/config.toml)
+  # -------------------------------------------------------------------------
+
+  CODEX_CONF="${HOME}/.codex/config.toml"
+  if [[ ! -f "$CODEX_CONF" ]] || grep -q "written by ai-connect" "$CODEX_CONF" 2>/dev/null; then
+    mkdir -p "${HOME}/.codex"
+    cat > "$CODEX_CONF" <<EOF
+# Codex config — written by ai-connect
+model = "${DEFAULT_MODEL}"
+model_provider = "host-ai"
+model_context_window = 32768
+
+[model_providers.host-ai]
+name = "Host AI (${AI_BACKEND})"
+base_url = "${AI_URL}/v1"
+EOF
+    echo "  Wrote ${CODEX_CONF}"
+  fi
+
+  # -------------------------------------------------------------------------
+  # 7. Write Continue.dev config (~/.continue/config.json)
+  # -------------------------------------------------------------------------
+
+  CONTINUE_CONF="${HOME}/.continue/config.json"
+  if [[ ! -f "$CONTINUE_CONF" ]] || grep -q "written by ai-connect" "$CONTINUE_CONF" 2>/dev/null; then
+    mkdir -p "${HOME}/.continue"
+
+    if [[ "$AI_BACKEND" == "mlx" ]]; then
+      CONTINUE_PROVIDER="openai"
+      CONTINUE_API_BASE="${AI_URL}/v1"
+    else
+      CONTINUE_PROVIDER="ollama"
+      CONTINUE_API_BASE="${AI_URL}"
+    fi
+
+    cat > "$CONTINUE_CONF" <<EOF
+{
+  "models": [
+    {
+      "title": "${DEFAULT_MODEL}",
+      "provider": "${CONTINUE_PROVIDER}",
+      "model": "${DEFAULT_MODEL}",
+      "apiBase": "${CONTINUE_API_BASE}"
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "${AUTOCOMPLETE_MODEL}",
+    "provider": "${CONTINUE_PROVIDER}",
+    "model": "${AUTOCOMPLETE_MODEL}",
+    "apiBase": "${CONTINUE_API_BASE}"
+  }
+}
+EOF
+    echo "  Wrote ${CONTINUE_CONF}"
+  fi
+
+fi
+
+if [[ -z "$AI_URL" ]]; then
+  echo ""
+  echo -e "${YELLOW}⚠  No AI backend detected — AI tools (Aider, Codex, Continue) will not work yet.${NC}"
+  echo "   On Apple Silicon: run scripts/mlx-setup for best performance"
+  echo "   Otherwise:        run scripts/ollama-setup"
+fi

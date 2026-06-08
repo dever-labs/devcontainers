@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+# mlx-setup — sets up MLX-LM as a high-performance alternative to Ollama on Apple Silicon.
+# Runs on the host machine (not inside a devcontainer).
+# MLX uses Apple's unified memory architecture directly, giving 20-50% better performance than Ollama.
+#
+# Usage:
+#   bash mlx-setup                          # uses default model (deepseek-r1:70b)
+#   bash mlx-setup qwen3:32b                # use a specific model (Ollama-style name)
+#   bash mlx-setup mlx-community/Qwen3-32B-4bit  # or a direct HuggingFace repo
+#   MLX_MODEL=qwen3:32b bash mlx-setup      # via env var
+#
+# Opt out by setting SKIP_MLX_SETUP=1 in your shell profile (~/.zshrc / ~/.bashrc).
+set -uo pipefail
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+MLX_PORT=8080
+MLX_URL="http://localhost:${MLX_PORT}"
+MLX_LOG="/tmp/mlx-server.log"
+MLX_PID_FILE="/tmp/mlx-server.pid"
+
+ok()   { echo -e "${GREEN}✓${NC} $*"; }
+warn() { echo -e "${YELLOW}⚠${NC}  $*"; }
+fail() { echo -e "${RED}✗${NC} $*"; }
+step() { echo -e "\n${BOLD}$*${NC}"; }
+
+if [[ "${SKIP_MLX_SETUP:-}" == "1" ]]; then
+  echo "  Skipping MLX setup (SKIP_MLX_SETUP=1)"
+  exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# 1. Check Apple Silicon
+# ---------------------------------------------------------------------------
+
+step "1. Checking hardware..."
+
+if [[ "$(uname)" != "Darwin" ]]; then
+  fail "MLX only runs on macOS with Apple Silicon. Use ollama-setup on Linux/Windows."
+  exit 0
+fi
+
+if [[ "$(uname -m)" != "arm64" ]]; then
+  fail "MLX requires Apple Silicon (M1/M2/M3/M4). This machine is $(uname -m)."
+  exit 0
+fi
+
+ok "Apple Silicon detected"
+
+# ---------------------------------------------------------------------------
+# 2. Install mlx-lm
+# ---------------------------------------------------------------------------
+
+step "2. Checking mlx-lm installation..."
+
+if python3 -c "import mlx_lm" &>/dev/null; then
+  MLX_VERSION=$(python3 -c "import mlx_lm; print(mlx_lm.__version__)" 2>/dev/null || echo "unknown")
+  ok "mlx-lm already installed (${MLX_VERSION})"
+else
+  warn "mlx-lm not found. Installing..."
+  pip3 install mlx-lm || { fail "Failed to install mlx-lm. Try: pip3 install mlx-lm"; exit 0; }
+  ok "mlx-lm installed"
+fi
+
+# ---------------------------------------------------------------------------
+# 3. Resolve model
+# ---------------------------------------------------------------------------
+
+step "3. Resolving model..."
+
+RAW_MODEL="${1:-${MLX_MODEL:-deepseek-r1:70b}}"
+
+# Map Ollama-style names to mlx-community HuggingFace repos
+resolve_mlx_model() {
+  case "$1" in
+    deepseek-r1:70b)   echo "mlx-community/DeepSeek-R1-Distill-Llama-70B-4bit" ;;
+    deepseek-r1:32b)   echo "mlx-community/DeepSeek-R1-Distill-Qwen-32B-4bit" ;;
+    deepseek-r1:14b)   echo "mlx-community/DeepSeek-R1-Distill-Qwen-14B-4bit" ;;
+    deepseek-r1:7b)    echo "mlx-community/DeepSeek-R1-Distill-Qwen-7B-4bit" ;;
+    qwen3:32b)         echo "mlx-community/Qwen3-32B-4bit" ;;
+    qwen3:30b)         echo "mlx-community/Qwen3-30B-A3B-4bit" ;;
+    qwen2.5-coder:14b) echo "mlx-community/Qwen2.5-Coder-14B-Instruct-4bit" ;;
+    qwen2.5-coder:7b)  echo "mlx-community/Qwen2.5-Coder-7B-Instruct-4bit" ;;
+    qwen2.5-coder:32b) echo "mlx-community/Qwen2.5-Coder-32B-Instruct-4bit" ;;
+    */*)               echo "$1" ;;  # already a HuggingFace repo
+    *)                 echo "" ;;
+  esac
+}
+
+MLX_MODEL_REPO=$(resolve_mlx_model "$RAW_MODEL")
+
+if [[ -z "$MLX_MODEL_REPO" ]]; then
+  warn "Unknown model '${RAW_MODEL}'. Pass a mlx-community HuggingFace repo directly:"
+  echo "  e.g. bash mlx-setup mlx-community/Qwen3-32B-4bit"
+  exit 0
+fi
+
+ok "Model: ${RAW_MODEL} → ${MLX_MODEL_REPO}"
+
+# ---------------------------------------------------------------------------
+# 4. Start MLX server (if not already running)
+# ---------------------------------------------------------------------------
+
+step "4. Checking MLX server..."
+
+is_mlx_running() {
+  curl -sf --max-time 2 "${MLX_URL}/v1/models" > /dev/null 2>&1
+}
+
+STARTED_NOW=false
+if is_mlx_running; then
+  ok "MLX server already running on port ${MLX_PORT}"
+else
+  warn "MLX server not running. Starting..."
+
+  if [[ -f "$MLX_PID_FILE" ]]; then
+    OLD_PID=$(cat "$MLX_PID_FILE" 2>/dev/null || echo "")
+    if [[ -n "$OLD_PID" ]]; then
+      kill "$OLD_PID" 2>/dev/null || true
+    fi
+    rm -f "$MLX_PID_FILE"
+  fi
+
+  python3 -m mlx_lm.server \
+    --model "$MLX_MODEL_REPO" \
+    --port "$MLX_PORT" \
+    --host 0.0.0.0 \
+    > "$MLX_LOG" 2>&1 &
+  MLX_PID=$!
+  echo "$MLX_PID" > "$MLX_PID_FILE"
+  STARTED_NOW=true
+
+  echo "  Loading model into memory (may take 30-60 seconds on first start)..."
+  for i in $(seq 1 60); do
+    if is_mlx_running; then
+      ok "MLX server started (PID ${MLX_PID})"
+      break
+    fi
+    sleep 1
+    if [[ $i -eq 60 ]]; then
+      fail "MLX server did not start within 60 seconds."
+      echo "  Check logs: tail ${MLX_LOG}"
+      exit 0
+    fi
+  done
+fi
+
+# ---------------------------------------------------------------------------
+# 5. Done
+# ---------------------------------------------------------------------------
+
+echo ""
+echo -e "${GREEN}${BOLD}✓ MLX server is ready.${NC}"
+echo ""
+echo "  Endpoint:      ${MLX_URL}/v1  (OpenAI-compatible)"
+echo "  Model:         ${MLX_MODEL_REPO}"
+echo "  Devcontainers: host.docker.internal:${MLX_PORT}"
+
+if [[ "${STARTED_NOW}" == "true" ]]; then
+  echo ""
+  echo "  To persist across reboots, add to your ~/.zshrc:"
+  echo "    python3 -m mlx_lm.server --model ${MLX_MODEL_REPO} --port ${MLX_PORT} --host 0.0.0.0 >> ${MLX_LOG} 2>&1 &"
+fi
+
+echo ""
+echo "  Stop:  cat ${MLX_PID_FILE} | xargs kill"
+echo "  Logs:  tail -f ${MLX_LOG}"

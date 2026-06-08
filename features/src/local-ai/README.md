@@ -60,33 +60,32 @@ DevContainer
 
 **At image build time** (`install.sh`): Aider is installed into an isolated Python venv at `/opt/aider`. Codex CLI is installed globally via npm.
 
-**At container start** (`ollama-connect`): The script detects the host Ollama endpoint (tries `OLLAMA_HOST`, then `host.docker.internal`, then the default gateway for native Linux Docker), pulls any missing default models in the background, and writes default configs for all three tools. If Ollama is not reachable, a warning is shown.
+**At container start** (`ai-connect`): Detects the host inference backend — MLX-LM first (port 8080, Apple Silicon), then Ollama (port 11434). Pulls missing models in the background (Ollama only), writes configs for all tools. Automatically selects the right provider (`openai` vs `ollama`) for each tool based on what's running.
 
 ## Prerequisites
 
-Ollama must be running on the host machine before starting (or rebuilding) the devcontainer.
+An AI inference backend must be running on the host before starting (or rebuilding) the devcontainer. `ai-connect` auto-detects which one is available.
 
-**Install Ollama once:**
+### Option A — MLX-LM (Apple Silicon, recommended)
+
+20-50% faster than Ollama on M-series Macs. Uses Apple's unified memory directly.
+
 ```bash
-# macOS / Linux
-curl -fsSL https://ollama.com/install.sh | sh
-
-# Or download from https://ollama.com
+curl -fsSL https://raw.githubusercontent.com/dever-labs/devcontainers/main/scripts/mlx-setup | bash
 ```
 
-**Pull the default model:**
+Or with a specific model:
 ```bash
-ollama pull deepseek-r1:70b
+curl -fsSL https://raw.githubusercontent.com/dever-labs/devcontainers/main/scripts/mlx-setup | bash -s qwen3:32b
 ```
 
-> Want an alternative? `ollama pull deepseek-coder-v2:16b` works too — update `~/.continue/config.json` and `~/.codex/config.toml` to point at it.
+### Option B — Ollama (Linux / Windows / Intel Mac)
 
-**Start Ollama** (if not already running):
 ```bash
-ollama serve
+curl -fsSL https://raw.githubusercontent.com/dever-labs/devcontainers/main/scripts/ollama-setup | bash
 ```
 
-> The feature auto-pulls missing models on container start, but the initial download can be several GB. Pre-pulling before first use avoids a slow first experience.
+> The feature auto-pulls missing models on container start (Ollama only), but the initial download can be several GB. Pre-pulling before first use avoids a slow first experience.
 
 ## Usage
 

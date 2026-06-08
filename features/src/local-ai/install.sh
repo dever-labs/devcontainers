@@ -16,14 +16,14 @@ ln -sf /opt/aider/bin/aider /usr/local/bin/aider
 # @openai/codex, @github/copilot, @anthropic-ai/claude-code — Node.js is already present in all dever-labs base images
 npm install -g @openai/codex @github/copilot @anthropic-ai/claude-code
 
-# Persist the chosen model so ollama-connect can read it at container start
+# Persist the chosen model so ai-connect can read it at container start
 mkdir -p /etc/local-ai
 echo "${MODEL:-deepseek-r1:70b}" > /etc/local-ai/model
 echo "${AUTOCOMPLETE_MODEL:-qwen2.5-coder:14b}" > /etc/local-ai/autocomplete-model
 
-# ollama-connect — detects host Ollama and writes tool configs at container start
-cp "$(dirname "$0")/ollama-connect" /usr/local/bin/ollama-connect
-chmod +x /usr/local/bin/ollama-connect
+# ai-connect — detects host Ollama and writes tool configs at container start
+cp "$(dirname "$0")/ai-connect" /usr/local/bin/ai-connect
+chmod +x /usr/local/bin/ai-connect
 
 # Pre-create credential directories owned by the container user.
 # When a named volume is mounted over a directory, Docker seeds the volume
