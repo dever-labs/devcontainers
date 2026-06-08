@@ -55,12 +55,18 @@ fi
 
 step "2. Checking Ollama service..."
 
-if curl -sf --max-time 2 "${OLLAMA_URL}/api/tags" >/dev/null 2>&1; then
+is_running() {
+  pgrep -x ollama >/dev/null 2>&1 || curl -sf --max-time 2 "${OLLAMA_URL}/api/tags" >/dev/null 2>&1
+}
+
+if is_running; then
   ok "Ollama already running on port 11434"
+  OLLAMA_STARTED_NOW=false
 else
   warn "Ollama not running. Starting..."
   OLLAMA_HOST=0.0.0.0 ollama serve >/tmp/ollama-serve.log 2>&1 &
   OLLAMA_PID=$!
+  OLLAMA_STARTED_NOW=true
 
   for i in $(seq 1 20); do
     if curl -sf --max-time 1 "${OLLAMA_URL}/api/tags" >/dev/null 2>&1; then
@@ -116,9 +122,12 @@ echo ""
 echo -e "${GREEN}${BOLD}✓ Ollama is ready.${NC}"
 echo ""
 echo "  Devcontainers will connect via: host.docker.internal:11434"
-echo "  To keep Ollama running across reboots:"
-if [[ "$(uname)" == "Darwin" ]]; then
-  echo "    brew services start ollama"
-else
-  echo "    sudo systemctl enable --now ollama"
+if [[ "${OLLAMA_STARTED_NOW}" == "true" ]]; then
+  echo ""
+  echo "  Ollama was started manually this session. To keep it running across reboots:"
+  if [[ "$(uname)" == "Darwin" ]]; then
+    echo "    brew services start ollama"
+  else
+    echo "    sudo systemctl enable --now ollama"
+  fi
 fi
