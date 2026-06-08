@@ -47,7 +47,7 @@ codex auth     # follow prompts
 ```
 Host machine
 └── Ollama (native process, port 11434)
-    └── qwen3:70b
+    └── deepseek-r1:70b
          │
          │  HTTP API (host.docker.internal:11434)
          │
@@ -76,7 +76,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 
 **Pull the default model:**
 ```bash
-ollama pull qwen3:70b
+ollama pull deepseek-r1:70b
 ```
 
 > Want an alternative? `ollama pull deepseek-coder-v2:16b` works too — update `~/.continue/config.json` and `~/.codex/config.toml` to point at it.
@@ -106,7 +106,7 @@ The `:1` tag tracks the latest `1.x.x` release — you get updates automatically
 
 ### Choosing a model
 
-The default model is `qwen3:70b` (~20GB, recommended for 32GB+ RAM). Override it with the `model` option:
+The default model is `deepseek-r1:70b` (~20GB, recommended for 32GB+ RAM). Override it with the `model` option:
 
 ```jsonc
 "ghcr.io/dever-labs/devcontainers/features/local-ai:1": {
@@ -119,7 +119,7 @@ The default model is `qwen3:70b` (~20GB, recommended for 32GB+ RAM). Override it
 | 8 GB | `qwen2.5-coder:7b` |
 | 16 GB | `qwen2.5-coder:14b` |
 | 32 GB | `qwen2.5-coder:32b` |
-| 64 GB+ | `qwen3:70b` (default) |
+| 64 GB+ | `deepseek-r1:70b` (default) |
 | Cloud AI only | `none` |
 
 Any model available in your local Ollama instance can be used — e.g. `codestral:22b`, `deepseek-coder-v2:16b`.

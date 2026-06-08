@@ -18,7 +18,7 @@ npm install -g @openai/codex @github/copilot @anthropic-ai/claude-code
 
 # Persist the chosen model so ollama-connect can read it at container start
 mkdir -p /etc/local-ai
-echo "${MODEL:-qwen3:70b}" > /etc/local-ai/model
+echo "${MODEL:-deepseek-r1:70b}" > /etc/local-ai/model
 
 # ollama-connect — detects host Ollama and writes tool configs at container start
 cp "$(dirname "$0")/ollama-connect" /usr/local/bin/ollama-connect

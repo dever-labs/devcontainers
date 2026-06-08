@@ -13,7 +13,7 @@ BOLD='\033[1m'
 NC='\033[0m'
 
 OLLAMA_URL="http://localhost:11434"
-DEFAULT_MODELS=("qwen3:70b")
+DEFAULT_MODELS=("deepseek-r1:70b")
 
 ok()   { echo -e "${GREEN}✓${NC} $*"; }
 warn() { echo -e "${YELLOW}⚠${NC}  $*"; }
@@ -125,7 +125,7 @@ BOLD='\033[1m'
 NC='\033[0m'
 
 OLLAMA_URL="http://localhost:11434"
-DEFAULT_MODELS=("qwen3:70b")
+DEFAULT_MODELS=("deepseek-r1:70b")
 
 ok()   { echo -e "${GREEN}✓${NC} $*"; }
 warn() { echo -e "${YELLOW}⚠${NC}  $*"; }
