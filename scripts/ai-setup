@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# ai-setup — platform-aware local AI inference setup
+#
+# Detects the host platform and runs the appropriate backend setup:
+#   Apple Silicon (macOS arm64) → MLX-LM  (20-50% faster than Ollama)
+#   Everything else             → Ollama
+#
+# Usage: curl -fsSL https://raw.githubusercontent.com/dever-labs/devcontainers/main/scripts/ai-setup | bash
+# Or via dever: dever ai-setup
+
+set -euo pipefail
+
+OS="$(uname -s)"
+ARCH="$(uname -m)"
+
+if [[ "$OS" == "Darwin" && "$ARCH" == "arm64" ]]; then
+  echo "==> Detected Apple Silicon — using MLX-LM for local inference"
+  SCRIPT_URL="https://raw.githubusercontent.com/dever-labs/devcontainers/main/scripts/mlx-setup"
+else
+  echo "==> Using Ollama for local inference (platform: $OS/$ARCH)"
+  SCRIPT_URL="https://raw.githubusercontent.com/dever-labs/devcontainers/main/scripts/ollama-setup"
+fi
+
+# If running inside a checkout of this repo, prefer the local script.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+if [[ "$OS" == "Darwin" && "$ARCH" == "arm64" ]]; then
+  LOCAL_SCRIPT="$SCRIPT_DIR/mlx-setup"
+else
+  LOCAL_SCRIPT="$SCRIPT_DIR/ollama-setup"
+fi
+
+if [[ -f "$LOCAL_SCRIPT" ]]; then
+  bash "$LOCAL_SCRIPT" "$@"
+else
+  curl -fsSL "$SCRIPT_URL" | bash -s -- "$@"
+fi
