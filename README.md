@@ -51,7 +51,7 @@ Add a `.devcontainer/devcontainer.json` that references the pre-built image. The
   // Runs on the HOST before the container starts.
   // Installs Ollama if missing, starts it, and pulls default models in the background.
   // Safe to run on every container start — all steps are idempotent.
-  "initializeCommand": "bash -c 'curl -fsSL https://raw.githubusercontent.com/dever-labs/devcontainers/main/scripts/ollama-setup | bash || true'",
+  "initializeCommand": "curl -fsSL https://raw.githubusercontent.com/dever-labs/devcontainers/main/scripts/ollama-setup | bash",
 
   // Images with k3d (dotnet-dev, go-dev, frontend-dev, python-dev, infra-dev) include
   // k3d-cluster-init. Add this to auto-start a local cluster on each container start.
@@ -77,7 +77,7 @@ The `local-ai` feature connects to Ollama running on your host machine. Run the 
 bash scripts/ollama-setup
 ```
 
-This installs Ollama if missing, starts it, pulls `qwen2.5-coder:32b`, and confirms the API is reachable from devcontainers.
+This installs Ollama if missing, starts it, pulls `qwen3:70b`, and confirms the API is reachable from devcontainers.
 
 ## Using with AI agents
 
