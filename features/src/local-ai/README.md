@@ -106,31 +106,38 @@ The `:1` tag tracks the latest `1.x.x` release — you get updates automatically
 
 ### Choosing a model
 
-The default model is `deepseek-r1:70b` (~20GB, recommended for 32GB+ RAM). Override it with the `model` option:
+Two separate models can be configured — a reasoning model for Aider/chat and a fast model for tab completion:
 
 ```jsonc
 "ghcr.io/dever-labs/devcontainers/features/local-ai:1": {
-  "model": "qwen2.5-coder:14b"
+  "model": "deepseek-r1:70b",
+  "autocomplete-model": "qwen2.5-coder:14b"
 }
 ```
 
-| RAM available | Recommended model |
-|---|---|
-| 8 GB | `qwen2.5-coder:7b` |
-| 16 GB | `qwen2.5-coder:14b` |
-| 32 GB | `qwen2.5-coder:32b` |
-| 64 GB+ | `deepseek-r1:70b` (default) |
-| Cloud AI only | `none` |
+Set `autocomplete-model` to `none` to use the same model for both.
 
-Any model available in your local Ollama instance can be used — e.g. `codestral:22b`, `deepseek-coder-v2:16b`.
+#### Model reference
 
-When `model` is set to `none`, Ollama setup is skipped entirely — no model is pulled and no local configs are written. All tools (Copilot CLI, Claude Code, Aider, Codex) are still installed.
+| Model | RAM | Best for |
+|---|---|---|
+| `qwen3:30b` | ~19 GB | Agent tasks, fast, thinking mode — best speed/quality ratio |
+| `qwen3:32b` | ~20 GB | Agentic coding, reasoning, strong all-rounder |
+| `deepseek-r1:32b` | ~20 GB | Pure reasoning, chain-of-thought |
+| `deepseek-r1:70b` | ~43 GB | Stronger reasoning, agentic coding (default chat model) |
+| `qwen2.5-coder:7b` | ~5 GB | Fast tab completion (low RAM) |
+| `qwen2.5-coder:14b` | ~9 GB | Tab completion, lightweight coding (default autocomplete) |
+| `qwen2.5-coder:32b` | ~20 GB | Code-focused tasks, no reasoning needed |
+| `qwen3:235b` | ~140 GB | Best open model — needs >128 GB RAM |
+| `none` | — | Skip Ollama setup; cloud AI tools still installed |
+
+Any model available in your local Ollama instance can be used.
 
 ## Using the tools
 
 ### Aider
 ```bash
-# Uses the configured model via host Ollama by default
+# Uses the configured chat model via host Ollama
 aider src/MyFile.cs
 ```
 
@@ -141,7 +148,7 @@ codex "add error handling to the login controller"
 ```
 
 ### Continue.dev
-Open the Continue panel in VS Code. The configured model is pre-set for both chat and tab completion.
+Open the Continue panel in VS Code. The chat model is used for inline chat; the autocomplete model handles tab completion separately for lower latency.
 
 ## Configuration
 

@@ -10,6 +10,12 @@ NC='\033[0m'
 
 OLLAMA_PORT=11434
 DEFAULT_MODEL=$(cat /etc/local-ai/model 2>/dev/null || echo "deepseek-r1:70b")
+AUTOCOMPLETE_MODEL=$(cat /etc/local-ai/autocomplete-model 2>/dev/null || echo "qwen2.5-coder:14b")
+
+# If autocomplete-model is 'none', fall back to main model
+if [[ "$AUTOCOMPLETE_MODEL" == "none" ]]; then
+  AUTOCOMPLETE_MODEL="$DEFAULT_MODEL"
+fi
 
 if [[ "$DEFAULT_MODEL" == "none" ]]; then
   echo "ℹ  Ollama model set to 'none' — skipping Ollama setup. Copilot CLI and Claude Code are available."
@@ -69,10 +75,19 @@ if [[ -n "$OLLAMA_URL" ]]; then
   # 3. Pull default models if not already present (background, non-blocking)
   # -------------------------------------------------------------------------
 
-  DEFAULT_MODELS=("${DEFAULT_MODEL}")
+  # Build unique list of models to pull (deduplicate if both are the same)
+  declare -A SEEN_MODELS
+  MODELS_TO_PULL=()
+  for m in "${DEFAULT_MODEL}" "${AUTOCOMPLETE_MODEL}"; do
+    if [[ -z "${SEEN_MODELS[$m]+_}" ]]; then
+      SEEN_MODELS[$m]=1
+      MODELS_TO_PULL+=("$m")
+    fi
+  done
+
   AVAILABLE_MODELS=$(curl -sf "${OLLAMA_URL}/api/tags" || echo "")
 
-  for model in "${DEFAULT_MODELS[@]}"; do
+  for model in "${MODELS_TO_PULL[@]}"; do
     if echo "${AVAILABLE_MODELS}" | grep -qF "\"${model}\""; then
       echo "  Model ${model} already present"
     else
@@ -157,9 +172,9 @@ EOF
     }
   ],
   "tabAutocompleteModel": {
-    "title": "${DEFAULT_MODEL}",
+    "title": "${AUTOCOMPLETE_MODEL}",
     "provider": "ollama",
-    "model": "${DEFAULT_MODEL}",
+    "model": "${AUTOCOMPLETE_MODEL}",
     "apiBase": "${OLLAMA_URL}"
   }
 }
