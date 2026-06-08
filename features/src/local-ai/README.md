@@ -47,8 +47,7 @@ codex auth     # follow prompts
 ```
 Host machine
 └── Ollama (native process, port 11434)
-    ├── qwen2.5-coder:14b
-    └── deepseek-coder-v2:16b
+    └── qwen2.5-coder:32b
          │
          │  HTTP API (host.docker.internal:11434)
          │
@@ -75,11 +74,12 @@ curl -fsSL https://ollama.com/install.sh | sh
 # Or download from https://ollama.com
 ```
 
-**Pull the default models:**
+**Pull the default model:**
 ```bash
-ollama pull qwen2.5-coder:14b
-ollama pull deepseek-coder-v2:16b
+ollama pull qwen2.5-coder:32b
 ```
+
+> Want an alternative? `ollama pull deepseek-coder-v2:16b` works too — update `~/.continue/config.json` and `~/.codex/config.toml` to point at it.
 
 **Start Ollama** (if not already running):
 ```bash
@@ -104,11 +104,32 @@ Add to your project's `.devcontainer/devcontainer.json`:
 
 The `:1` tag tracks the latest `1.x.x` release — you get updates automatically on every devcontainer rebuild without changing your config.
 
+### Choosing a model
+
+The default model is `qwen2.5-coder:32b` (~20GB, recommended for 32GB+ RAM). Override it with the `model` option:
+
+```jsonc
+"ghcr.io/dever-labs/devcontainers/features/local-ai:1": {
+  "model": "qwen2.5-coder:14b"
+}
+```
+
+| RAM available | Recommended model |
+|---|---|
+| 8 GB | `qwen2.5-coder:7b` |
+| 16 GB | `qwen2.5-coder:14b` |
+| 32 GB+ | `qwen2.5-coder:32b` (default) |
+| Cloud AI only | `none` |
+
+Any model available in your local Ollama instance can be used — e.g. `codestral:22b`, `deepseek-coder-v2:16b`.
+
+When `model` is set to `none`, Ollama setup is skipped entirely — no model is pulled and no local configs are written. All tools (Copilot CLI, Claude Code, Aider, Codex) are still installed.
+
 ## Using the tools
 
 ### Aider
 ```bash
-# Uses qwen2.5-coder:14b via host Ollama by default
+# Uses the configured model via host Ollama by default
 aider src/MyFile.cs
 ```
 
@@ -119,7 +140,7 @@ codex "add error handling to the login controller"
 ```
 
 ### Continue.dev
-Open the Continue panel in VS Code. Two models are pre-configured: **Qwen Coder 14B** and **DeepSeek Coder 16B**. Tab completion uses Qwen Coder 14B.
+Open the Continue panel in VS Code. The configured model is pre-set for both chat and tab completion.
 
 ## Configuration
 

@@ -1,11 +1,20 @@
 {
   "id": "local-ai",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "name": "Local AI Tooling",
   "description": "Installs Aider, Codex CLI, GitHub Copilot CLI, and Claude Code, and connects them to a shared Ollama instance running on the host machine.",
 
+  "options": {
+    "model": {
+      "type": "string",
+      "default": "qwen2.5-coder:32b",
+      "description": "Ollama model to use as the default for Aider, Codex, and Continue.dev. Choose based on available RAM: 7b (~8GB), 14b (~16GB), 32b (~20GB). Examples: qwen2.5-coder:14b, codestral:22b, deepseek-coder-v2:16b. Set to 'none' to skip Ollama setup entirely (tools are still installed)."
+    }
+  },
+
   "containerEnv": {
-    "OLLAMA_HOST": "http://host.docker.internal:11434"
+    "OLLAMA_HOST": "http://host.docker.internal:11434",
+    "OLLAMA_API_BASE": "http://host.docker.internal:11434"
   },
 
   "postStartCommand": "ollama-connect",

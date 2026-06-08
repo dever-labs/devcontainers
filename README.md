@@ -77,7 +77,7 @@ The `local-ai` feature connects to Ollama running on your host machine. Run the 
 bash scripts/ollama-setup
 ```
 
-This installs Ollama if missing, starts it, pulls `qwen2.5-coder:14b` and `deepseek-coder-v2:16b`, and confirms the API is reachable from devcontainers.
+This installs Ollama if missing, starts it, pulls `qwen2.5-coder:32b`, and confirms the API is reachable from devcontainers.
 
 ## Using with AI agents
 

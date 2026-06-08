@@ -9,6 +9,12 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 OLLAMA_PORT=11434
+DEFAULT_MODEL=$(cat /etc/local-ai/model 2>/dev/null || echo "qwen2.5-coder:32b")
+
+if [[ "$DEFAULT_MODEL" == "none" ]]; then
+  echo "ℹ  Ollama model set to 'none' — skipping Ollama setup. Copilot CLI and Claude Code are available."
+  exit 0
+fi
 
 # ---------------------------------------------------------------------------
 # 1. Helpers
@@ -63,7 +69,7 @@ if [[ -n "$OLLAMA_URL" ]]; then
   # 3. Pull default models if not already present (background, non-blocking)
   # -------------------------------------------------------------------------
 
-  DEFAULT_MODELS=("qwen2.5-coder:14b" "deepseek-coder-v2:16b")
+  DEFAULT_MODELS=("${DEFAULT_MODEL}")
   AVAILABLE_MODELS=$(curl -sf "${OLLAMA_URL}/api/tags" || echo "")
 
   for model in "${DEFAULT_MODELS[@]}"; do
@@ -104,8 +110,7 @@ RCEOF
   if [[ ! -f "$AIDER_CONF" ]]; then
     cat > "$AIDER_CONF" <<EOF
 # Aider default config — written by ollama-connect
-model: ollama/qwen2.5-coder:14b
-ollama-api-base: ${OLLAMA_URL}
+model: ollama/${DEFAULT_MODEL}
 EOF
     echo "  Wrote ${AIDER_CONF}"
   fi
@@ -120,7 +125,7 @@ EOF
     cat > "$CODEX_CONF" <<EOF
 # Codex config — written by ollama-connect
 # Requires Ollama >= 0.13.4 (Responses API)
-model = "qwen2.5-coder:14b"
+model = "${DEFAULT_MODEL}"
 model_provider = "host-ollama"
 model_context_window = 32768
 
@@ -142,22 +147,16 @@ EOF
 {
   "models": [
     {
-      "title": "Qwen Coder 14B",
+      "title": "${DEFAULT_MODEL}",
       "provider": "ollama",
-      "model": "qwen2.5-coder:14b",
-      "apiBase": "${OLLAMA_URL}"
-    },
-    {
-      "title": "DeepSeek Coder 16B",
-      "provider": "ollama",
-      "model": "deepseek-coder-v2:16b",
+      "model": "${DEFAULT_MODEL}",
       "apiBase": "${OLLAMA_URL}"
     }
   ],
   "tabAutocompleteModel": {
-    "title": "Qwen Coder 14B",
+    "title": "${DEFAULT_MODEL}",
     "provider": "ollama",
-    "model": "qwen2.5-coder:14b",
+    "model": "${DEFAULT_MODEL}",
     "apiBase": "${OLLAMA_URL}"
   }
 }

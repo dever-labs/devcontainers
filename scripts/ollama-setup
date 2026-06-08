@@ -13,7 +13,7 @@ BOLD='\033[1m'
 NC='\033[0m'
 
 OLLAMA_URL="http://localhost:11434"
-DEFAULT_MODELS=("qwen2.5-coder:14b" "deepseek-coder-v2:16b")
+DEFAULT_MODELS=("qwen2.5-coder:32b")
 
 ok()   { echo -e "${GREEN}✓${NC} $*"; }
 warn() { echo -e "${YELLOW}⚠${NC}  $*"; }

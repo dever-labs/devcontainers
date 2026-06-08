@@ -16,6 +16,10 @@ ln -sf /opt/aider/bin/aider /usr/local/bin/aider
 # @openai/codex, @github/copilot, @anthropic-ai/claude-code — Node.js is already present in all dever-labs base images
 npm install -g @openai/codex @github/copilot @anthropic-ai/claude-code
 
+# Persist the chosen model so ollama-connect can read it at container start
+mkdir -p /etc/local-ai
+echo "${MODEL:-qwen2.5-coder:32b}" > /etc/local-ai/model
+
 # ollama-connect — detects host Ollama and writes tool configs at container start
 cp "$(dirname "$0")/ollama-connect" /usr/local/bin/ollama-connect
 chmod +x /usr/local/bin/ollama-connect
