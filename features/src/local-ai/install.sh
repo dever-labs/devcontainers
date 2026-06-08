@@ -21,9 +21,14 @@ mkdir -p /etc/local-ai
 echo "${MODEL:-deepseek-r1:70b}" > /etc/local-ai/model
 echo "${AUTOCOMPLETE_MODEL:-qwen2.5-coder:14b}" > /etc/local-ai/autocomplete-model
 
-# ai-connect — detects host Ollama and writes tool configs at container start
+# ai-connect — detects host AI backend and writes tool configs at container start
 cp "$(dirname "$0")/ai-connect" /usr/local/bin/ai-connect
 chmod +x /usr/local/bin/ai-connect
+
+# dever — convenience command to run scripts from dever-labs/devcontainers
+curl -fsSL "https://raw.githubusercontent.com/dever-labs/devcontainers/main/scripts/dever" \
+  -o /usr/local/bin/dever
+chmod +x /usr/local/bin/dever
 
 # Pre-create credential directories owned by the container user.
 # When a named volume is mounted over a directory, Docker seeds the volume

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# dever — run scripts from dever-labs/devcontainers
+#
+# Usage:
+#   dever <script> [args...]
+#
+# Examples:
+#   dever mlx-setup
+#   dever mlx-setup qwen3:32b
+#   dever ollama-setup
+#
+# Install on host:
+#   curl -fsSL https://raw.githubusercontent.com/dever-labs/devcontainers/main/scripts/dever \
+#     | sudo tee /usr/local/bin/dever > /dev/null && sudo chmod +x /usr/local/bin/dever
+
+set -euo pipefail
+
+BASE_URL="https://raw.githubusercontent.com/dever-labs/devcontainers/main/scripts"
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: dever <script> [args...]"
+  echo ""
+  echo "Available scripts:"
+  echo "  mlx-setup    [model]   Set up MLX-LM inference (Apple Silicon)"
+  echo "  ollama-setup           Set up Ollama inference (Linux/Windows/Intel Mac)"
+  exit 1
+fi
+
+SCRIPT="$1"
+shift
+
+exec bash <(curl -fsSL "${BASE_URL}/${SCRIPT}") "$@"

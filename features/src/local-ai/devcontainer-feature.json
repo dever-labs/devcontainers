@@ -1,6 +1,6 @@
 {
   "id": "local-ai",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "name": "Local AI Tooling",
   "description": "Installs Aider, Codex CLI, GitHub Copilot CLI, and Claude Code, and connects them to a shared Ollama instance running on the host machine.",
 
