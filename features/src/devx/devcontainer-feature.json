@@ -1,0 +1,18 @@
+{
+  "id": "devx",
+  "version": "1.0.0",
+  "name": "devx CLI",
+  "description": "Installs the devx developer orchestration CLI — provides 'devx ai', 'devx dev', 'devx run', 'devx doctor', 'devx ci', and more.",
+
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "latest",
+      "description": "devx release tag to install (e.g. 'v0.1.0'). Defaults to the latest release."
+    }
+  },
+
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}
