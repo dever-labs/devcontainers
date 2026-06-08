@@ -103,11 +103,12 @@ RCEOF
   fi
 
   # -------------------------------------------------------------------------
-  # 5. Write Aider config (~/.aider.conf.yml) — skip if already present
+  # 5. Write Aider config (~/.aider.conf.yml)
+  # Always rewrite if written by ollama-connect; skip if user-customized.
   # -------------------------------------------------------------------------
 
   AIDER_CONF="${HOME}/.aider.conf.yml"
-  if [[ ! -f "$AIDER_CONF" ]]; then
+  if [[ ! -f "$AIDER_CONF" ]] || grep -q "written by ollama-connect" "$AIDER_CONF" 2>/dev/null; then
     cat > "$AIDER_CONF" <<EOF
 # Aider default config — written by ollama-connect
 model: ollama/${DEFAULT_MODEL}
@@ -116,11 +117,12 @@ EOF
   fi
 
   # -------------------------------------------------------------------------
-  # 6. Write Codex config (~/.codex/config.toml) — skip if already present
+  # 6. Write Codex config (~/.codex/config.toml)
+  # Always rewrite if written by ollama-connect; skip if user-customized.
   # -------------------------------------------------------------------------
 
   CODEX_CONF="${HOME}/.codex/config.toml"
-  if [[ ! -f "$CODEX_CONF" ]]; then
+  if [[ ! -f "$CODEX_CONF" ]] || grep -q "written by ollama-connect" "$CODEX_CONF" 2>/dev/null; then
     mkdir -p "${HOME}/.codex"
     cat > "$CODEX_CONF" <<EOF
 # Codex config — written by ollama-connect
@@ -137,11 +139,12 @@ EOF
   fi
 
   # -------------------------------------------------------------------------
-  # 7. Write Continue.dev config (~/.continue/config.json) — skip if already present
+  # 7. Write Continue.dev config (~/.continue/config.json)
+  # Always rewrite if written by ollama-connect; skip if user-customized.
   # -------------------------------------------------------------------------
 
   CONTINUE_CONF="${HOME}/.continue/config.json"
-  if [[ ! -f "$CONTINUE_CONF" ]]; then
+  if [[ ! -f "$CONTINUE_CONF" ]] || grep -q "written by ollama-connect" "$CONTINUE_CONF" 2>/dev/null; then
     mkdir -p "${HOME}/.continue"
     cat > "$CONTINUE_CONF" <<EOF
 {
