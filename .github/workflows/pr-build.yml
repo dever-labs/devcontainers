@@ -59,10 +59,21 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
 
+      # Unmerged feature changes are not on GHCR yet, so stage a copy of the image config that
+      # uses the in-repo agent-personas feature (local feature refs must sit beside devcontainer.json).
+      - name: Stage image with local features
+        run: |
+          STAGE=.ci-stage
+          mkdir -p "$STAGE/.devcontainer"
+          cp -r images/Dockerfile images/scripts "$STAGE/"
+          cp images/${{ matrix.image }}/* "$STAGE/.devcontainer/"
+          cp -r features/src/agent-personas "$STAGE/.devcontainer/agent-personas"
+          sed -i 's|ghcr.io/dever-labs/devcontainers/features/agent-personas:1|./agent-personas|' "$STAGE/.devcontainer/devcontainer.json"
+
       - name: Build and smoke test ${{ matrix.image }} (amd64, no push)
         uses: devcontainers/ci@513af61f4de4f75d37e4438f184ba4358f0fc1ca # v0.3
         with:
-          configFile: images/${{ matrix.image }}/devcontainer.json
+          configFile: .ci-stage/.devcontainer/devcontainer.json
           imageName: ghcr.io/dever-labs/devcontainers/${{ matrix.image }}
           imageTag: pr-${{ github.event.pull_request.number }}
           push: never
