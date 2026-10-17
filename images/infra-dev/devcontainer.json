@@ -14,6 +14,8 @@
     "ghcr.io/devcontainers/features/azure-cli:1": {
       "version": "2.86"
     },
+    // AWS CLI v2
+    "ghcr.io/devcontainers/features/aws-cli:1": {},
     // Docker-outside-of-Docker — mounts host socket, no nested daemon, no privileged container
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
     // kubectl + Helm — local cluster management via k3d
