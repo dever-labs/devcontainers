@@ -172,3 +172,40 @@ Set `OLLAMA_HOST` in your devcontainer's `remoteEnv` to override the auto-detect
 ```
 
 This is useful when running a shared Ollama instance on a remote machine or in Kubernetes.
+
+## Troubleshooting
+
+### MLX server fails to start (Apple Silicon)
+
+**`mlx_lm.server is not available`**
+
+The `mlx` C extension is not installed or is broken. Fix with:
+```bash
+pip3 install --upgrade mlx mlx-lm
+```
+Then re-run `mlx-setup`.
+
+**`MLX server did not start within 60 seconds`**
+
+Loading a large model (e.g. `deepseek-r1:70b`) for the first time can take several minutes. The server process is still running in the background. Wait a moment and verify:
+```bash
+curl -s http://localhost:8080/v1/models
+```
+If that returns models, the server is ready — re-open or rebuild the devcontainer and `ai-connect` will detect it.
+
+**Process exits immediately / no log file**
+
+Run the server in the foreground to see the raw error:
+```bash
+python3 -m mlx_lm.server \
+  --model mlx-community/DeepSeek-R1-Distill-Llama-70B-4bit \
+  --port 8080 --host 0.0.0.0
+```
+
+### No AI backend detected inside the container
+
+Run `ai-connect` manually to re-detect and rewrite tool configs:
+```bash
+ai-connect
+```
+Make sure the host server is reachable at `host.docker.internal:8080` (MLX) or `host.docker.internal:11434` (Ollama) before running this.

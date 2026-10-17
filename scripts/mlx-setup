@@ -66,6 +66,13 @@ else
   ok "mlx-lm installed"
 fi
 
+if ! python3 -c "import mlx_lm.server" &>/dev/null; then
+  fail "mlx_lm.server is not available."
+  echo "  This usually means the 'mlx' C extension is missing or broken."
+  echo "  Fix: pip3 install --upgrade mlx mlx-lm"
+  exit 1
+fi
+
 # ---------------------------------------------------------------------------
 # 3. Resolve model
 # ---------------------------------------------------------------------------
@@ -136,6 +143,13 @@ else
 
   echo "  Loading model into memory (may take 30-60 seconds on first start)..."
   for i in $(seq 1 60); do
+    # Detect immediate crash — process already exited
+    if ! kill -0 "$MLX_PID" 2>/dev/null; then
+      fail "MLX server process exited immediately."
+      echo "  Error output:"
+      cat "$MLX_LOG" 2>/dev/null | sed 's/^/    /' || echo "    (no log output)"
+      exit 1
+    fi
     if is_mlx_running; then
       ok "MLX server started (PID ${MLX_PID})"
       break
