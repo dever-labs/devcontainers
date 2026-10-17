@@ -119,5 +119,5 @@ go test -v -timeout 30m ./...
 
 ## Notes
 
-- **First cloud login after container create**: interactive `az login`, `aws configure`, `gcloud auth login` is required unless credentials are forwarded via `remoteEnv`.
+- **First cloud login after container create**: interactive `az login`, `aws configure`, `gcloud auth login`, or `hcloud context create` is required unless credentials are forwarded via `remoteEnv`.
 - **k3d** auto-starts with the container and is ready in ~15–45 seconds. The cluster joins the devcontainer's Docker network so `kubectl` and `helm` work immediately without port-forwarding tricks.
