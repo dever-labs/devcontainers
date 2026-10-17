@@ -51,6 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       images: ${{ steps.detect.outputs.images }}
+      stamp: ${{ steps.detect.outputs.stamp }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
@@ -86,6 +87,8 @@ jobs:
             IMAGES=$(echo "$SELECTED" | jq -R -s -c 'split("\n") | map(select(length > 0))')
           fi
           echo "images=$IMAGES" >> $GITHUB_OUTPUT
+          # One immutable stamp per run, shared by the build and manifest jobs
+          echo "stamp=$(date -u +%Y%m%d)-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
   build:
     name: Build ${{ matrix.image }} (${{ matrix.platform }})
@@ -122,8 +125,8 @@ jobs:
         run: |
           ARCH="${{ matrix.platform }}"
           ARCH="${ARCH#linux/}"
-          # Immutable per-commit tag so consumers can pin and roll back
-          TAGS="latest-${ARCH},sha-${GITHUB_SHA::7}-${ARCH}"
+          # Immutable <date>-<sha> tag so consumers can pin and roll back
+          TAGS="latest-${ARCH},${{ needs.changes.outputs.stamp }}-${ARCH}"
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
             VERSION="${{ github.ref_name }}"
             # Strip leading 'v' to split semver parts
@@ -186,7 +189,7 @@ jobs:
               -t "${IMAGE}:latest" \
               "${IMAGE}:latest-amd64" \
               "${IMAGE}:latest-arm64"
-            SHA_TAG="sha-${GITHUB_SHA::7}"
+            SHA_TAG="${{ needs.changes.outputs.stamp }}"
             docker buildx imagetools create \
               -t "${IMAGE}:${SHA_TAG}" \
               "${IMAGE}:${SHA_TAG}-amd64" \
