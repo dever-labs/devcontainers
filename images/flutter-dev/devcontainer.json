@@ -15,7 +15,9 @@
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {
       "version": "2.92"
-    }
+    },
+    // Shared review agent personas (architect, devops, docs, security, qa, po, pm) for Copilot Chat/CLI
+    "ghcr.io/dever-labs/devcontainers/features/agent-personas:1": {}
   },
 
   "remoteEnv": {
