@@ -4,6 +4,8 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 # feature registry which is not reliably accessible from CI runners.
 ARG FLUTTER_VERSION=3.41.9
 ARG FLUTTER_CHANNEL=stable
+ARG COPILOT_CLI_VERSION=1.0.98
+ARG CLAUDE_CODE_VERSION=2.1.302
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
@@ -30,7 +32,7 @@ RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
        > /etc/apt/sources.list.d/nodesource.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends nodejs \
-    && npm install -g @github/copilot @anthropic-ai/claude-code \
+    && npm install -g "@github/copilot@${COPILOT_CLI_VERSION}" "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" \
     && ln -sf "$(npm prefix -g)/bin/copilot" /usr/local/bin/copilot \
     && ln -sf "$(npm prefix -g)/bin/claude" /usr/local/bin/claude \
     && rm -rf /var/lib/apt/lists/*

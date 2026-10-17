@@ -16,7 +16,7 @@ updates:
       - devcontainer
 
   - package-ecosystem: docker
-    directory: /images/dotnet-dev
+    directory: /images
     schedule:
       interval: weekly
     labels:
@@ -25,38 +25,6 @@ updates:
 
   - package-ecosystem: docker
     directory: /images/flutter-dev
-    schedule:
-      interval: weekly
-    labels:
-      - dependencies
-      - docker
-
-  - package-ecosystem: docker
-    directory: /images/frontend-dev
-    schedule:
-      interval: weekly
-    labels:
-      - dependencies
-      - docker
-
-  - package-ecosystem: docker
-    directory: /images/go-dev
-    schedule:
-      interval: weekly
-    labels:
-      - dependencies
-      - docker
-
-  - package-ecosystem: docker
-    directory: /images/infra-dev
-    schedule:
-      interval: weekly
-    labels:
-      - dependencies
-      - docker
-
-  - package-ecosystem: docker
-    directory: /images/python-dev
     schedule:
       interval: weekly
     labels:
