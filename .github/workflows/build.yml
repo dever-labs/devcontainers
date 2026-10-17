@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
     tags: ['v*']
+  schedule:
+    # Weekly rebuild of every image to pick up base-image and OS security updates
+    - cron: '0 3 * * 1'
   workflow_dispatch:
     inputs:
       image:
@@ -15,6 +18,33 @@ env:
   ORG: dever-labs
 
 jobs:
+  # Publish features first so images that reference them never build against a stale/missing feature.
+  features:
+    name: Publish features
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install devcontainers CLI
+        run: npm install -g @devcontainers/cli
+
+      - name: Publish features
+        run: |
+          devcontainer features publish \
+            --registry ${{ env.REGISTRY }} \
+            --namespace ${{ env.ORG }}/devcontainers/features \
+            ./features/src
+
   # Detect which image directories changed so we only rebuild what's needed.
   changes:
     name: Detect changes
@@ -23,6 +53,8 @@ jobs:
       images: ${{ steps.detect.outputs.images }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
 
       - name: Detect changed images
         id: detect
@@ -35,14 +67,29 @@ jobs:
               IMAGES=$(find images -maxdepth 2 -name "devcontainer.json" | sed 's|images/||;s|/devcontainer.json||' | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')
             fi
           else
-            # On push to main or a version tag, rebuild all images
-            IMAGES=$(find images -maxdepth 2 -name "devcontainer.json" | sed 's|images/||;s|/devcontainer.json||' | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            ALL=$(find images -maxdepth 2 -name "devcontainer.json" | sed 's|images/||;s|/devcontainer.json||' | sort)
+            BEFORE="${{ github.event.before }}"
+            if [[ "${{ github.ref }}" == refs/tags/* ]] || [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
+              || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+              SELECTED="$ALL"
+            else
+              CHANGED=$(git diff --name-only "$BEFORE" "${{ github.sha }}")
+              # Shared inputs (common Dockerfile, scripts, features, CI) affect every image
+              if echo "$CHANGED" | grep -qE '^(images/Dockerfile|images/scripts/|features/|\.github/workflows/build\.yml)'; then
+                SELECTED="$ALL"
+              else
+                SELECTED=$(echo "$CHANGED" | grep -oE '^images/[^/]+/' | sed 's|images/||;s|/||' | sort -u | while read -r d; do
+                  [ -f "images/$d/devcontainer.json" ] && echo "$d"
+                done)
+              fi
+            fi
+            IMAGES=$(echo "$SELECTED" | jq -R -s -c 'split("\n") | map(select(length > 0))')
           fi
           echo "images=$IMAGES" >> $GITHUB_OUTPUT
 
   build:
     name: Build ${{ matrix.image }} (${{ matrix.platform }})
-    needs: [changes]
+    needs: [changes, features]
     if: ${{ needs.changes.outputs.images != '[]' }}
     runs-on: ubuntu-latest
     strategy:
@@ -75,7 +122,8 @@ jobs:
         run: |
           ARCH="${{ matrix.platform }}"
           ARCH="${ARCH#linux/}"
-          TAGS="latest-${ARCH}"
+          # Immutable per-commit tag so consumers can pin and roll back
+          TAGS="latest-${ARCH},sha-${GITHUB_SHA::7}-${ARCH}"
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
             VERSION="${{ github.ref_name }}"
             # Strip leading 'v' to split semver parts
@@ -138,6 +186,11 @@ jobs:
               -t "${IMAGE}:latest" \
               "${IMAGE}:latest-amd64" \
               "${IMAGE}:latest-arm64"
+            SHA_TAG="sha-${GITHUB_SHA::7}"
+            docker buildx imagetools create \
+              -t "${IMAGE}:${SHA_TAG}" \
+              "${IMAGE}:${SHA_TAG}-amd64" \
+              "${IMAGE}:${SHA_TAG}-arm64"
           else
             echo "Skipping manifest for ${{ matrix.image }}: one or both arch builds are missing"
           fi

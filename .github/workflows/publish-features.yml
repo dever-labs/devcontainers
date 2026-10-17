@@ -1,10 +1,7 @@
 name: Publish DevContainer Features
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'features/src/**'
+  # Publishing on push to main is done by build.yml (before images build) to avoid a race.
   workflow_dispatch:
 
 env:
