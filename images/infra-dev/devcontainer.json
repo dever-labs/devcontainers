@@ -3,7 +3,7 @@
   // This file is used by CI to build and push the image to GHCR.
   // Service repos reference the resulting image -- they do not build it themselves.
   "name": "infra-dev",
-  "build": { "dockerfile": "Dockerfile", "context": "../" },
+  "build": { "dockerfile": "../Dockerfile", "context": ".." },
 
   "features": {
     // Terraform -- IaC for cloud infrastructure
