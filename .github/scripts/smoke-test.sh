@@ -14,7 +14,7 @@ case "$IMAGE" in
   python-dev)   tools=("${common[@]}" "${cluster[@]}" python3 pip3) ;;
   frontend-dev) tools=("${common[@]}" "${cluster[@]}") ;;
   node-dev)     tools=("${common[@]}" "${cluster[@]}") ;;
-  infra-dev)    tools=("${common[@]}" "${cluster[@]}" terraform az aws) ;;
+  infra-dev)    tools=("${common[@]}" "${cluster[@]}" terraform az aws gcloud argocd flux hcloud) ;;
   flutter-dev)  tools=("${common[@]}" flutter dart) ;;
   *) echo "Unknown image: $IMAGE" >&2; exit 2 ;;
 esac
