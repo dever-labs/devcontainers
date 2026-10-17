@@ -1,0 +1,12 @@
+{
+  "id": "agent-personas",
+  "version": "1.0.0",
+  "name": "AI Review Agent Personas",
+  "description": "Installs a shared set of read-only review agents (architect, devops, docs, security, qa, po, pm) for GitHub Copilot Chat and the Copilot CLI, so every dever-labs devcontainer reviews changes with the same personas.",
+
+  "postStartCommand": "agent-personas-sync",
+
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}
