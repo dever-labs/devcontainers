@@ -31,4 +31,4 @@ Pre-built devcontainer for general Node.js / TypeScript projects (services, CLIs
 }
 ```
 
-Pin to an immutable build with `node-dev:sha-<short>` instead of `latest` when you need reproducibility.
+Pin to an immutable build with `node-dev:<yyyymmdd>-<sha>` instead of `latest` when you need reproducibility.

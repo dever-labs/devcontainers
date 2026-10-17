@@ -132,7 +132,7 @@ Pull requests build each affected image (amd64, no push) and run `.github/script
 | Tag | Meaning |
 |-----|---------|
 | `latest` | Most recent build of `main` — moves on every rebuild |
-| `sha-<short>` | Immutable tag for a specific commit — pin to this for reproducibility or rollback |
+| `<yyyymmdd>-<sha>` | Immutable tag for a specific build (build date + commit) — pin to this for reproducibility or rollback |
 | `vX.Y.Z`, `vX.Y`, `vX` | Created when a `v*` git tag is pushed |
 
 Node major, Copilot CLI, Claude Code and k3d versions are pinned via `ARG`s at the top of `images/Dockerfile`; bump them deliberately.
