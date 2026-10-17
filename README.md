@@ -13,9 +13,10 @@ All service repos reference an image from here. No per-repo builds, no drift bet
 | [`python-dev`](docs/python-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/python-dev:latest` | Python 3.14 | Docker-outside-of-Docker, kubectl, Helm, k3d |
 | [`go-dev`](docs/go-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/go-dev:latest` | Go 1.26 | Docker-outside-of-Docker, kubectl, Helm, k3d |
 | [`flutter-dev`](docs/flutter-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/flutter-dev:latest` | Flutter stable + Dart SDK | Web, Linux, Android targets (iOS requires macOS runner) |
-| [`infra-dev`](docs/infra-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/infra-dev:latest` | Terraform, Azure CLI | AWS CLI, GCP SDK, ArgoCD, Docker-outside-of-Docker, kubectl, Helm, k3d |
+| [`infra-dev`](docs/infra-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/infra-dev:latest` | Terraform, Azure CLI, AWS CLI | Docker-outside-of-Docker, kubectl, Helm, k3d |
+| [`node-dev`](docs/node-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/node-dev:latest` | Node.js 26 | Docker-outside-of-Docker, kubectl, Helm, k3d |
 
-All images include: **git**, **GitHub CLI**, **GitHub Copilot**, and **Claude Code** (VS Code extension + CLI), plus the [`agent-personas`](features/src/agent-personas/README.md) feature — shared read-only review agents (**architect**, **devops**, **docs**, **security**, **qa**, **po**, **pm**) available in Copilot Chat and the Copilot CLI, so every dever-labs devcontainer reviews changes with the same set of lenses. Select one from the agent picker in VS Code, or run `copilot --agent <name> -p "..."` from the terminal.
+All images include: **git**, **GitHub CLI**, **GitHub Copilot CLI**, and **Claude Code** (VS Code extensions + CLIs, installed with pinned versions), plus the [`agent-personas`](features/src/agent-personas/README.md) feature — shared read-only review agents (**architect**, **devops**, **docs**, **security**, **qa**, **po**, **pm**) available in Copilot Chat and the Copilot CLI, so every dever-labs devcontainer reviews changes with the same set of lenses. Select one from the agent picker in VS Code, or run `copilot --agent <name> -p "..."` from the terminal.
 
 ## Available features
 
@@ -33,7 +34,7 @@ Add a `.devcontainer/devcontainer.json` that references the pre-built image. The
 {
   "name": "my-service",
   // Replace with the image that matches your stack.
-  // Available: dotnet-dev, frontend-dev, python-dev, go-dev, flutter-dev, infra-dev
+  // Available: dotnet-dev, frontend-dev, node-dev, python-dev, go-dev, flutter-dev, infra-dev
   "image": "ghcr.io/dever-labs/devcontainers/<name>:latest",
 
   "features": {
@@ -122,7 +123,19 @@ ghcr.io/dever-labs/devcontainers/dotnet-dev:latest   [public]
 .devcontainer/devcontainer.json → "image": "ghcr.io/..."
 ```
 
-Every push to `main` rebuilds all images with layer caching. A `workflow_dispatch` input lets you rebuild a single named image.
+On push to `main`, only images affected by the change are rebuilt (changes to `images/Dockerfile`, `images/scripts/`, or `features/` rebuild all). All images are also rebuilt weekly to pick up base-image security updates. A `workflow_dispatch` input lets you rebuild a single named image.
+
+Pull requests build each affected image (amd64, no push) and run `.github/scripts/smoke-test.sh` to check the expected tools are on `PATH`.
+
+### Image tags
+
+| Tag | Meaning |
+|-----|---------|
+| `latest` | Most recent build of `main` — moves on every rebuild |
+| `sha-<short>` | Immutable tag for a specific commit — pin to this for reproducibility or rollback |
+| `vX.Y.Z`, `vX.Y`, `vX` | Created when a `v*` git tag is pushed |
+
+Node major, Copilot CLI, Claude Code and k3d versions are pinned via `ARG`s at the top of `images/Dockerfile`; bump them deliberately.
 
 ## One-time setup: make packages public
 
@@ -130,21 +143,26 @@ Package visibility on GHCR persists across pushes — set each image to public o
 
 For each image, go to **github.com/orgs/dever-labs/packages**, open the package, and under **Package settings → Change visibility → Public**.
 
-You only need to do this 5 times total (once per image, after the first CI build).
+Do this once per image (7 images) after its first CI build.
 
 ## Adding a new image
 
-1. Create `images/<name>/devcontainer.json` using an existing image as a template.
-2. Push to `main` — CI builds and pushes `ghcr.io/dever-labs/devcontainers/<name>:latest`.
-3. Reference it in service repos.
+1. Create `images/<name>/devcontainer.json` using an existing image as a template; point `build.dockerfile` at `../Dockerfile` (shared) unless the image needs its own.
+2. Add the image to `.github/scripts/smoke-test.sh`.
+3. Push to `main` — CI builds and pushes `ghcr.io/dever-labs/devcontainers/<name>:latest`.
+4. Reference it in service repos.
 
 ## Modifying an existing image
 
-Edit `images/<name>/devcontainer.json` and push to `main`. Service repos pick up the change on their next container rebuild — no changes needed in service repos.
+Edit `images/<name>/devcontainer.json` (or the shared `images/Dockerfile`) via a pull request; CI builds and smoke-tests it before merge. Service repos pick up the change on their next container rebuild — no changes needed in service repos.
 
 ## Conventions
 
 - Base image: `mcr.microsoft.com/devcontainers/base:ubuntu-24.04`
 - Feature versions: pin to `major.minor` (e.g. `"version": "10.0"`) so patch updates flow automatically.
 - Keep images generic for their persona — no project-specific tooling here.
+
+## Repository scope
+
+The images under `images/` are the core product. `features/src/local-ai`, `features/src/devx` and the host scripts in `scripts/` (`ollama-setup`, `mlx-setup`, `ai-setup`, `dever`) are optional org tooling that happen to live here; they are not part of any base image and should be split into their own repository if they grow.
 
