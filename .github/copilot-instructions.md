@@ -6,7 +6,7 @@ Each image is defined as a `devcontainer.json` under `images/<name>/` and built 
 ## Repository structure
 
 - `images/<name>/devcontainer.json` — devcontainer feature definition for each image
-- `images/Dockerfile` — shared base layer (Node, AI CLIs, k3d) used by every image except `flutter-dev`; AI CLI versions are pinned via ARGs
+- `images/Dockerfile` — shared base layer (Node, AI CLIs, k3d) used by every image except `flutter-dev` (`infra-dev` builds the extra `infra` stage with ArgoCD, Flux, hcloud, gcloud); AI CLI versions are pinned via ARGs
 - `.github/workflows/pr-build.yml` — builds and smoke-tests affected images on PRs (`.github/scripts/smoke-test.sh`)
 - `.github/workflows/build.yml` — builds changed images on push to main (and weekly), pushes to GHCR with `latest` and immutable `sha-<short>` tags
 - `features/src/agent-personas/` — shared read-only review agent personas (architect, devops, docs, security, qa, po, pm) for GitHub Copilot Chat/CLI. Every base image includes this feature so all dever-labs devcontainers review changes with the same personas.
