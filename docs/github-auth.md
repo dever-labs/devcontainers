@@ -18,6 +18,12 @@ The Docker volume `dever-labs-gh-config` is mounted to `~/.config/gh` inside eve
 
 Docker named volumes are host-OS-agnostic — this works identically on **macOS**, **Linux**, and **Windows** (Docker Desktop or WSL2). There is no host path involved, so no OS-specific configuration is required.
 
+## Copilot CLI
+
+Every image also mounts a second shared volume, `dever-labs-copilot`, at `~/.copilot`. Run `copilot /login` once inside any container and the Copilot CLI stays authenticated in all of them. The `agent-personas` feature keeps its review agents in this directory too.
+
+To use it in your own repo, add `"source=dever-labs-copilot,target=/home/vscode/.copilot,type=volume"` to `mounts` (same `<remoteUser>` note as below).
+
 ## AI agents
 
 When running as a GitHub Copilot coding agent or similar automated environment, `GITHUB_TOKEN` is forwarded from the platform via `remoteEnv`. The `gh` CLI treats this env var as the auth token (highest priority), so no manual login is needed for agents. The volume credentials are used as a fallback when `GITHUB_TOKEN` is not set.

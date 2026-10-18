@@ -10,10 +10,10 @@ Pre-built devcontainer for frontend applications — React, Vue, Angular, Next.j
 | npm / pnpm / yarn | via corepack | Package managers (`corepack enable pnpm` to activate pnpm) |
 | Docker-outside-of-Docker | latest | Build images and run containers via the host Docker socket |
 | kubectl | 1.36 | Deploy to and inspect Kubernetes clusters |
-| Helm | 4.1.4 | Install and manage Helm charts |
-| k3d | 5.8.3 | Local Kubernetes cluster (auto-started on container start) |
+| Helm | 4.1 (patch auto-updates) | Install and manage Helm charts |
+| k3d | 5.8.3 (pinned in `images/Dockerfile`) | Local Kubernetes cluster — start it with `k3d-cluster-init` |
 | git | latest | Source control |
-| GitHub CLI (`gh`) | 2.92.0 | PRs, issues, releases, Actions |
+| GitHub CLI (`gh`) | 2.92 (patch auto-updates) | PRs, issues, releases, Actions |
 
 ## VS Code extensions
 
@@ -25,6 +25,7 @@ Pre-built devcontainer for frontend applications — React, Vue, Angular, Next.j
 | `esbenp.prettier-vscode` | Code formatting |
 | `dbaeumer.vscode-eslint` | Linting |
 | `bradlc.vscode-tailwindcss` | Tailwind CSS IntelliSense |
+| `ms-vscode.vscode-typescript-next` | Latest TypeScript language features |
 
 ## Use cases
 
@@ -74,7 +75,7 @@ Or add it to your service repo's `postCreateCommand`:
 
 ### Deploying a frontend to local Kubernetes
 
-A k3d cluster starts automatically. Build an image and deploy:
+With a k3d cluster running (`"postStartCommand": "k3d-cluster-init"` in your repo's `devcontainer.json`), build an image and deploy:
 
 ```bash
 docker build -t my-frontend:local .
@@ -91,10 +92,4 @@ helm upgrade --install my-frontend ./charts/my-frontend \
 
 ## Updating Node.js
 
-Edit `images/frontend-dev/Dockerfile` and change the NodeSource channel:
-
-```dockerfile
-&& echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_26.x nodistro main" \
-```
-
-Replace `node_26.x` with the desired major version (e.g. `node_28.x`).
+Node.js comes from the shared `images/Dockerfile` (also used by `node-dev`, `dotnet-dev`, `go-dev`, `python-dev` and `infra-dev`). In a pull request, change the `NODE_MAJOR` ARG at the top of that file (e.g. `ARG NODE_MAJOR=28`).

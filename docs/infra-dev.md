@@ -6,8 +6,8 @@ Pre-built devcontainer for infrastructure and platform engineering — Terraform
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Terraform | latest | Infrastructure as Code |
-| Azure CLI | latest | Azure resource management |
+| Terraform | 1.15 (patch auto-updates) | Infrastructure as Code |
+| Azure CLI | 2.86 (patch auto-updates) | Azure resource management |
 | AWS CLI v2 | latest | AWS resource management |
 | Google Cloud CLI (`gcloud`) | apt (latest) | GCP resource management |
 | Hetzner Cloud CLI (`hcloud`) | 1.70.1 | Hetzner resource management |
@@ -15,10 +15,10 @@ Pre-built devcontainer for infrastructure and platform engineering — Terraform
 | Flux CLI | 2.9.6 | Flux GitOps bootstrap and reconciliation |
 | Docker-outside-of-Docker | latest | Build images and run containers via the host Docker socket |
 | kubectl | 1.36 | Kubernetes cluster management |
-| Helm | 4.1.4 | Helm chart installation and management |
-| k3d | 5.8.3 | Local Kubernetes cluster (auto-started on container start) |
+| Helm | 4.1 (patch auto-updates) | Helm chart installation and management |
+| k3d | 5.8.3 (pinned in `images/Dockerfile`) | Local Kubernetes cluster — start it with `k3d-cluster-init` |
 | git | latest | Source control |
-| GitHub CLI (`gh`) | latest | PRs, issues, releases, Actions |
+| GitHub CLI (`gh`) | 2.92 (patch auto-updates) | PRs, issues, releases, Actions |
 
 > ArgoCD, Flux and `hcloud` are installed in the `infra` stage of `images/Dockerfile` with checksum verification; bump the `ARGOCD_VERSION`, `FLUX_VERSION` and `HCLOUD_VERSION` ARGs deliberately.
 
@@ -93,7 +93,7 @@ flux get kustomizations
 
 ### Local Kubernetes with Helm
 
-A k3d cluster starts automatically. Install and iterate on charts locally before promoting to a real cluster:
+With a k3d cluster running (`"postStartCommand": "k3d-cluster-init"` in your repo's `devcontainer.json`), install and iterate on charts locally before promoting to a real cluster:
 
 ```bash
 helm upgrade --install my-stack ./charts/my-stack \
@@ -120,4 +120,4 @@ go test -v -timeout 30m ./...
 ## Notes
 
 - **First cloud login after container create**: interactive `az login`, `aws configure`, `gcloud auth login`, or `hcloud context create` is required unless credentials are forwarded via `remoteEnv`.
-- **k3d** auto-starts with the container and is ready in ~15–45 seconds. The cluster joins the devcontainer's Docker network so `kubectl` and `helm` work immediately without port-forwarding tricks.
+- **k3d** starts when you run `k3d-cluster-init` (e.g. via `postStartCommand`) and is ready in ~15–45 seconds. The cluster joins the devcontainer's Docker network so `kubectl` and `helm` work immediately without port-forwarding tricks.

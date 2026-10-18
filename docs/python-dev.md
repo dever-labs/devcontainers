@@ -10,10 +10,10 @@ Pre-built devcontainer for Python projects — APIs (FastAPI, Flask, Django), da
 | pip / pipx / virtualenv | via `installTools: true` | Package and environment management |
 | Docker-outside-of-Docker | latest | Build images and run containers via the host Docker socket |
 | kubectl | 1.36 | Deploy to and inspect Kubernetes clusters |
-| Helm | 4.1.4 | Install and manage Helm charts |
-| k3d | 5.8.3 | Local Kubernetes cluster (auto-started on container start) |
+| Helm | 4.1 (patch auto-updates) | Install and manage Helm charts |
+| k3d | 5.8.3 (pinned in `images/Dockerfile`) | Local Kubernetes cluster — start it with `k3d-cluster-init` |
 | git | latest | Source control |
-| GitHub CLI (`gh`) | latest | PRs, issues, releases, Actions |
+| GitHub CLI (`gh`) | 2.92 (patch auto-updates) | PRs, issues, releases, Actions |
 
 ## VS Code extensions
 
@@ -85,7 +85,7 @@ pytest --cov=src --cov-report=term-missing
 
 ### Deploying a Python service to local Kubernetes
 
-A k3d cluster starts automatically when the container starts. Build and deploy with Helm:
+Once a k3d cluster is running (add `"postStartCommand": "k3d-cluster-init"` to your repo's `devcontainer.json`), build and deploy with Helm:
 
 ```bash
 docker build -t my-api:local .

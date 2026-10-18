@@ -11,9 +11,9 @@ Pre-built devcontainer for general Node.js / TypeScript projects (services, CLIs
 | Docker-outside-of-Docker | latest | Build images and run containers via the host Docker socket |
 | kubectl | 1.36 | Deploy to and inspect Kubernetes clusters |
 | Helm | 4.1 | Install and manage Helm charts |
-| k3d | 5.8.3 | Local Kubernetes cluster (`k3d-cluster-init`) |
+| k3d | 5.8.3 (pinned in `images/Dockerfile`) | Local Kubernetes cluster — start it with `k3d-cluster-init` |
 | git | latest | Source control |
-| GitHub CLI (`gh`) | 2.92 | PRs, issues, releases, Actions |
+| GitHub CLI (`gh`) | 2.92 (patch auto-updates) | PRs, issues, releases, Actions |
 | Copilot CLI, Claude Code | pinned in `images/Dockerfile` | AI agents |
 
 ## VS Code extensions
