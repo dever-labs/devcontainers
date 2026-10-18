@@ -1,8 +1,8 @@
 # flutter-dev
 
-Pre-built devcontainer for Flutter applications — iOS, Android, Web, Linux, macOS, and Windows targets from a single Dart codebase. Works for both human developers and AI coding agents.
+Pre-built devcontainer for Flutter applications — iOS, Android, Web, Linux, macOS, and Windows targets from a single Dart codebase. This image builds **Android, Web and Linux** targets (see the note below for the others). Works for both human developers and AI coding agents.
 
-> **iOS note**: iOS builds require macOS and cannot run inside this Linux container. Use a macOS GitHub Actions runner for iOS CI builds. All other targets (Android, Web, Linux) build fine inside the container.
+> **Platform note**: iOS and macOS builds require macOS, and Windows builds require Windows, so none of them can run in this Linux container. Use a macOS GitHub Actions runner for iOS CI builds. All other targets (Android, Web, Linux) build fine inside the container.
 
 ## What's included
 
@@ -10,9 +10,9 @@ Pre-built devcontainer for Flutter applications — iOS, Android, Web, Linux, ma
 |------|---------|---------|
 | Flutter SDK | 3.41.9 (stable) | Framework + Dart SDK + toolchain |
 | Dart SDK | (bundled with Flutter) | Language runtime |
-| Node.js | LTS | Required for Claude Code CLI |
+| Node.js | 26 | Required for the Copilot CLI and Claude Code CLI (pinned in `images/flutter-dev/Dockerfile`) |
 | git | latest | Source control |
-| GitHub CLI (`gh`) | latest | PRs, issues, releases, Actions |
+| GitHub CLI (`gh`) | 2.92 (patch auto-updates) | PRs, issues, releases, Actions |
 
 ## VS Code extensions
 
@@ -80,11 +80,11 @@ add a volume mount to your service repo's `devcontainer.json`:
 
 ## Updating Flutter
 
-Edit `images/flutter-dev/Dockerfile`:
+Edit `images/flutter-dev/Dockerfile` in a pull request:
 
 ```dockerfile
 ARG FLUTTER_VERSION=3.41.9
 ARG FLUTTER_CHANNEL=stable
 ```
 
-Push to `main` — all service repos pick it up on next rebuild.
+Once merged, CI rebuilds the image and all service repos pick it up on their next rebuild.

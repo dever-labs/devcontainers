@@ -25,6 +25,8 @@ Features are opt-in add-ons that layer on top of any base image. Add them to you
 | Feature | Reference | What it adds |
 |---------|-----------|--------------|
 | [`local-ai`](features/src/local-ai/README.md) | `ghcr.io/dever-labs/devcontainers/features/local-ai:1` | Aider, Codex CLI, Copilot CLI, Claude Code, Continue.dev — connected to host Ollama |
+| [`agent-personas`](features/src/agent-personas/README.md) | `ghcr.io/dever-labs/devcontainers/features/agent-personas:1` | Shared read-only review agents. Already in every image; add it only to repos that use a different base image. |
+| `devx` | `ghcr.io/dever-labs/devcontainers/features/devx:1` | Installs the `devx` developer orchestration CLI (`devx ai`, `devx dev`, `devx doctor`, ...). Option `version` selects the release tag. |
 
 ## Using an image in a service repo
 
@@ -49,12 +51,14 @@ Add a `.devcontainer/devcontainer.json` that references the pre-built image. The
     "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
   },
 
-  // Runs on the HOST before the container starts.
+  // Runs on the HOST before the container starts. NOTE: this executes a script fetched from
+  // `main` on your machine. Beyond personal use, pin the URL to a release tag or commit SHA
+  // (replace `main`) and review the script first.
   // Installs Ollama if missing, starts it, and pulls default models in the background.
   // Safe to run on every container start — all steps are idempotent.
   "initializeCommand": "curl -fsSL https://raw.githubusercontent.com/dever-labs/devcontainers/main/scripts/ollama-setup | bash",
 
-  // Images with k3d (dotnet-dev, go-dev, frontend-dev, python-dev, infra-dev) include
+  // Images with k3d (all except flutter-dev) include
   // k3d-cluster-init. Add this to auto-start a local cluster on each container start.
   // "postStartCommand": "k3d-cluster-init",
 
@@ -80,17 +84,25 @@ bash scripts/ollama-setup
 
 This installs Ollama if missing, starts it, pulls `deepseek-r1:70b`, and confirms the API is reachable from devcontainers.
 
+Other host scripts (run from a clone, or via `dever <script>`, which downloads the script from `main` and runs it, so the same trust note applies):
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/ai-setup` | Detects the platform: runs `mlx-setup` on Apple Silicon, `ollama-setup` elsewhere |
+| `scripts/mlx-setup [model]` | MLX-LM inference server for Apple Silicon |
+| `scripts/dever <script>` | Convenience wrapper that fetches and runs a script from this repo |
+
 ## Using with AI agents
 
 These images are designed to work as autonomous agent environments, not just IDE containers.
 
 ### GitHub Copilot Coding Agent / Copilot Workspace
 
-The images are compatible with [GitHub Copilot coding agent](https://docs.github.com/en/copilot/using-github-copilot/using-claude-sonnet-in-github-copilot). Reference the image in your repo's `.devcontainer/devcontainer.json` and Copilot will use it automatically.
+The images are compatible with [GitHub Copilot coding agent](https://docs.github.com/en/copilot/concepts/agents/coding-agent/about-coding-agent). Reference the image in your repo's `.devcontainer/devcontainer.json` and Copilot will use it automatically.
 
 ### Claude Code
 
-Claude Code is pre-installed as a VS Code extension (`anthropics.claude-code`). For headless agent use:
+Claude Code is pre-installed as a VS Code extension (`anthropics.claude-code`) and as the `claude` CLI; the GitHub Copilot CLI (`copilot`) is installed too. For headless agent use:
 
 ```bash
 docker run --rm -it ghcr.io/dever-labs/devcontainers/dotnet-dev:latest bash
@@ -108,6 +120,8 @@ gh auth login
 Docker volumes are OS-agnostic — this works on macOS, Linux, and Windows without any host path configuration.
 
 For AI agents (Copilot coding agent, Claude Code), `GITHUB_TOKEN` is forwarded from the platform environment via `remoteEnv` and takes precedence over the volume credentials.
+
+Copilot CLI credentials persist the same way through a second shared volume, `dever-labs-copilot` (mounted at `~/.copilot`): run `copilot /login` once.
 
 → [Full authentication guide](docs/github-auth.md)
 

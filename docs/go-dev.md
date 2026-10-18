@@ -6,13 +6,13 @@ Pre-built devcontainer for Go projects — microservices, CLIs, Kubernetes opera
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Go | latest | Runtime, compiler, toolchain |
+| Go | 1.26 (patch auto-updates) | Runtime, compiler, toolchain |
 | Docker-outside-of-Docker | latest | Build images and run containers via the host Docker socket |
 | kubectl | 1.36 | Deploy to and inspect Kubernetes clusters |
-| Helm | 4.1.4 | Install and manage Helm charts |
-| k3d | 5.8.3 | Local Kubernetes cluster (auto-started on container start) |
+| Helm | 4.1 (patch auto-updates) | Install and manage Helm charts |
+| k3d | 5.8.3 (pinned in `images/Dockerfile`) | Local Kubernetes cluster — start it with `k3d-cluster-init` |
 | git | latest | Source control |
-| GitHub CLI (`gh`) | latest | PRs, issues, releases, Actions |
+| GitHub CLI (`gh`) | 2.92 (patch auto-updates) | PRs, issues, releases, Actions |
 
 ## VS Code extensions
 
@@ -60,7 +60,7 @@ air
 
 ### Kubernetes operator
 
-A k3d cluster starts automatically. Build and import your operator image directly:
+With a k3d cluster running (`"postStartCommand": "k3d-cluster-init"` in your repo's `devcontainer.json`), build and import your operator image directly:
 
 ```bash
 docker build -t my-operator:local .
