@@ -1,0 +1,80 @@
+name: PR Build and Smoke Test
+
+on:
+  pull_request:
+    paths:
+      - 'images/**'
+      - 'features/**'
+      - '.github/scripts/**'
+      - '.github/workflows/pr-build.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-build-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Detect changed images
+    runs-on: ubuntu-latest
+    outputs:
+      images: ${{ steps.detect.outputs.images }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed images
+        id: detect
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          CHANGED=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          ALL=$(find images -maxdepth 2 -name devcontainer.json | sed 's|images/||;s|/devcontainer.json||' | sort)
+          # Shared inputs (common Dockerfile, scripts, features, CI) affect every image
+          if echo "$CHANGED" | grep -qE '^(images/Dockerfile|images/scripts/|features/|\.github/scripts/|\.github/workflows/pr-build\.yml)'; then
+            SELECTED="$ALL"
+          else
+            SELECTED=$(echo "$CHANGED" | grep -oE '^images/[^/]+/' | sed 's|images/||;s|/||' | sort -u | while read -r d; do
+              [ -f "images/$d/devcontainer.json" ] && echo "$d"
+            done)
+          fi
+          echo "images=$(echo "$SELECTED" | jq -R -s -c 'split("\n") | map(select(length > 0))')" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build and test ${{ matrix.image }}
+    needs: changes
+    if: ${{ needs.changes.outputs.images != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJSON(needs.changes.outputs.images) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      # Unmerged feature changes are not on GHCR yet, so stage a copy of the image config that
+      # uses the in-repo agent-personas feature (local feature refs must sit beside devcontainer.json).
+      - name: Stage image with local features
+        run: |
+          STAGE=.ci-stage
+          mkdir -p "$STAGE/.devcontainer"
+          cp -r images/Dockerfile images/scripts .github/scripts/smoke-test.sh "$STAGE/"
+          cp images/${{ matrix.image }}/* "$STAGE/.devcontainer/"
+          cp -r features/src/agent-personas "$STAGE/.devcontainer/agent-personas"
+          sed -i 's|ghcr.io/dever-labs/devcontainers/features/agent-personas:1|./agent-personas|' "$STAGE/.devcontainer/devcontainer.json"
+
+      - name: Build and smoke test ${{ matrix.image }} (amd64, no push)
+        uses: devcontainers/ci@513af61f4de4f75d37e4438f184ba4358f0fc1ca # v0.3
+        with:
+          subFolder: .ci-stage
+          imageName: ghcr.io/dever-labs/devcontainers/${{ matrix.image }}
+          imageTag: pr-${{ github.event.pull_request.number }}
+          push: never
+          runCmd: bash smoke-test.sh ${{ matrix.image }}
