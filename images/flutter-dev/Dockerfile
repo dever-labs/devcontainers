@@ -2,9 +2,12 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 
 # Install Flutter SDK directly — avoids relying on the devcontainers-contrib community
 # feature registry which is not reliably accessible from CI runners.
+# renovate: datasource=github-tags depName=flutter/flutter versioning=semver
 ARG FLUTTER_VERSION=3.41.9
 ARG FLUTTER_CHANNEL=stable
+# renovate: datasource=npm depName=@github/copilot
 ARG COPILOT_CLI_VERSION=1.0.98
+# renovate: datasource=npm depName=@anthropic-ai/claude-code
 ARG CLAUDE_CODE_VERSION=2.1.302
 
 RUN apt-get update && apt-get install -y --no-install-recommends \

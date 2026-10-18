@@ -8,10 +8,12 @@
   "features": {
     // Terraform -- IaC for cloud infrastructure
     "ghcr.io/devcontainers/features/terraform:1": {
+      // renovate: datasource=github-releases depName=hashicorp/terraform extractVersion=^v(?<version>\d+\.\d+)\.\d+$
       "version": "1.15"
     },
     // Azure CLI -- primary cloud provider
     "ghcr.io/devcontainers/features/azure-cli:1": {
+      // renovate: datasource=github-releases depName=Azure/azure-cli extractVersion=^azure-cli-(?<version>\d+\.\d+)\.\d+$
       "version": "2.86"
     },
     // AWS CLI v2
@@ -20,12 +22,15 @@
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
     // kubectl + Helm — local cluster management via k3d
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      // renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>\d+\.\d+)\.\d+$
       "version": "1.36",
+      // renovate: datasource=github-releases depName=helm/helm extractVersion=^v(?<version>\d+\.\d+)\.\d+$
       "helm": "4.1",
       "minikube": "none"
     },
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {
+      // renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>\d+\.\d+)\.\d+$
       "version": "2.92"
     },
     // Shared review agent personas (architect, devops, docs, security, qa, po, pm) for Copilot Chat/CLI

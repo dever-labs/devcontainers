@@ -149,7 +149,7 @@ Pull requests build each affected image (amd64, no push) and run `.github/script
 | `<yyyymmdd>-<sha>` | Immutable tag for a specific build (build date + commit) — pin to this for reproducibility or rollback |
 | `vX.Y.Z`, `vX.Y`, `vX` | Created when a `v*` git tag is pushed |
 
-Node major, Copilot CLI, Claude Code and k3d versions are pinned via `ARG`s at the top of `images/Dockerfile`; bump them deliberately.
+Tool versions are pinned via `ARG`s in the Dockerfiles and feature `version` options in `images/*/devcontainer.json`. [Renovate](renovate.json) opens a weekly PR for each annotated pin (`# renovate:` / `// renovate:` comments); the PR build and smoke tests validate it. Dependabot handles GitHub Actions and base images. The Node major (`NODE_MAJOR`) is bumped manually, LTS only.
 
 ## One-time setup: make packages public
 
