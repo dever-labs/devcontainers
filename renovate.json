@@ -1,0 +1,40 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Dependabot covers GitHub Actions, devcontainer feature refs and base images. Renovate only tracks tool versions that Dependabot cannot see: ARGs in Dockerfiles and feature version options in images/*/devcontainer.json, each marked with a '# renovate:' or '// renovate:' comment.",
+  "extends": ["config:recommended"],
+  "enabledManagers": ["custom.regex"],
+  "schedule": ["before 6am on monday"],
+  "timezone": "Europe/Copenhagen",
+  "prConcurrentLimit": 5,
+  "labels": ["dependencies", "tools"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Tool versions annotated in Dockerfiles (ARG NAME=value)",
+      "managerFilePatterns": ["/^images/(.+/)?Dockerfile$/"],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+versioning=(?<versioning>\\S+))?(?:\\s+extractVersion=(?<extractVersion>\\S+))?\\s*\\n\\s*ARG\\s+\\w+=(?<currentValue>\\S+)"
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "Feature version options annotated in images/*/devcontainer.json",
+      "managerFilePatterns": ["/^images/[^/]+/devcontainer\\.json$/"],
+      "matchStrings": [
+        "//\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+versioning=(?<versioning>\\S+))?(?:\\s+extractVersion=(?<extractVersion>\\S+))?\\s*\\n\\s*\"(?:version|helm)\":\\s*\"(?<currentValue>[^\"]+)\""
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Keep each tool in its own PR so a failing smoke test points at one change",
+      "matchManagers": ["custom.regex"],
+      "groupName": null
+    },
+    {
+      "description": "Copilot CLI and Claude Code release often; batch them into one weekly PR",
+      "matchDepNames": ["@github/copilot", "@anthropic-ai/claude-code"],
+      "groupName": "AI CLIs"
+    }
+  ]
+}

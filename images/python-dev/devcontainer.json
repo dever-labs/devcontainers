@@ -8,6 +8,7 @@
   "features": {
     // Python — pin to major.minor so patch updates flow automatically
     "ghcr.io/devcontainers/features/python:1": {
+      // renovate: datasource=python-version depName=python
       "version": "3.14",
       "installTools": true
     },
@@ -15,12 +16,15 @@
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
     // kubectl + Helm — local cluster management via k3d
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      // renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>\d+\.\d+)\.\d+$
       "version": "1.36",
+      // renovate: datasource=github-releases depName=helm/helm extractVersion=^v(?<version>\d+\.\d+)\.\d+$
       "helm": "4.1",
       "minikube": "none"
     },
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {
+      // renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>\d+\.\d+)\.\d+$
       "version": "2.92"
     },
     // Shared review agent personas (architect, devops, docs, security, qa, po, pm) for Copilot Chat/CLI
