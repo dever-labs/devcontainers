@@ -9,8 +9,6 @@ Pre-built devcontainer for infrastructure and platform engineering — Terraform
 | Terraform | latest | Infrastructure as Code |
 | Azure CLI | latest | Azure resource management |
 | AWS CLI v2 | latest | AWS resource management |
-| Google Cloud SDK (`gcloud`) | latest | GCP resource management |
-| ArgoCD CLI | latest | GitOps deployments |
 | Docker-outside-of-Docker | latest | Build images and run containers via the host Docker socket |
 | kubectl | 1.36 | Kubernetes cluster management |
 | Helm | 4.1.4 | Helm chart installation and management |
@@ -18,7 +16,7 @@ Pre-built devcontainer for infrastructure and platform engineering — Terraform
 | git | latest | Source control |
 | GitHub CLI (`gh`) | latest | PRs, issues, releases, Actions |
 
-> AWS CLI, GCP SDK, and ArgoCD CLI are installed via shell on container create because the devcontainers-contrib features have known CI reliability issues.
+> `gcloud` and the ArgoCD CLI are not included. Install them in your repo's `postCreateCommand` if needed.
 
 ## VS Code extensions
 
@@ -70,24 +68,9 @@ Forward credentials from your host environment via `remoteEnv`. Example for all 
     // AWS
     "AWS_ACCESS_KEY_ID": "${localEnv:AWS_ACCESS_KEY_ID}",
     "AWS_SECRET_ACCESS_KEY": "${localEnv:AWS_SECRET_ACCESS_KEY}",
-    "AWS_DEFAULT_REGION": "${localEnv:AWS_DEFAULT_REGION}",
-    // GCP
-    "GOOGLE_APPLICATION_CREDENTIALS": "${localEnv:GOOGLE_APPLICATION_CREDENTIALS}"
+    "AWS_DEFAULT_REGION": "${localEnv:AWS_DEFAULT_REGION}"
   }
 }
-```
-
-### GitOps with ArgoCD
-
-```bash
-# Log in to an ArgoCD instance
-argocd login <argocd-server> --username admin --password <password>
-
-# Sync an application
-argocd app sync my-app
-
-# Check rollout status
-argocd app wait my-app --health
 ```
 
 ### Local Kubernetes with Helm
@@ -118,5 +101,5 @@ go test -v -timeout 30m ./...
 
 ## Notes
 
-- **First cloud login after container create**: interactive `az login`, `aws configure`, or `gcloud auth login` is required unless credentials are forwarded via `remoteEnv`.
+- **First cloud login after container create**: interactive `az login`, or `aws configure` is required unless credentials are forwarded via `remoteEnv`.
 - **k3d** auto-starts with the container and is ready in ~15–45 seconds. The cluster joins the devcontainer's Docker network so `kubectl` and `helm` work immediately without port-forwarding tricks.
