@@ -1,0 +1,53 @@
+{
+  // Definition for the node-dev devcontainer image.
+  // This file is used by CI to build and push the image to GHCR.
+  // Service repos reference the resulting image — they do not build it themselves.
+  "name": "node-dev",
+  "build": { "dockerfile": "Dockerfile", "context": "../" },
+
+  "features": {
+    // Docker-outside-of-Docker — mounts host socket, no nested daemon, no privileged container
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    // kubectl + Helm — local cluster management via k3d
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      "version": "1.36",
+      "helm": "4.1",
+      "minikube": "none"
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "2.92"
+    },
+    // Shared review agent personas (architect, devops, docs, security, qa, po, pm) for Copilot Chat/CLI
+    "ghcr.io/dever-labs/devcontainers/features/agent-personas:1": {}
+  },
+
+  "remoteEnv": {
+    "PATH": "/usr/local/bin:${containerEnv:PATH}",
+    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+  },
+
+  "mounts": [
+    // Persist gh credentials across all dever-labs devcontainers.
+    // Run `gh auth login` once — every container that mounts this volume gets your credentials.
+    "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume",
+    // Persist Copilot CLI credentials (stored at ~/.copilot/config.json on headless Linux).
+    // Run `copilot /login` once — all containers with this volume stay authenticated.
+    "source=dever-labs-copilot,target=/home/vscode/.copilot,type=volume"
+  ],
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // AI agents
+        "github.copilot",
+        "github.copilot-chat",
+        "anthropics.claude-code",
+        // Node / TypeScript
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-vscode.vscode-typescript-next"
+      ]
+    }
+  }
+}

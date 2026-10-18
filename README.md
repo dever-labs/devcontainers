@@ -15,7 +15,7 @@ All service repos reference an image from here. No per-repo builds, no drift bet
 | [`flutter-dev`](docs/flutter-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/flutter-dev:latest` | Flutter stable + Dart SDK | Web, Linux, Android targets (iOS requires macOS runner) |
 | [`infra-dev`](docs/infra-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/infra-dev:latest` | Terraform, Azure CLI | AWS CLI, GCP SDK, ArgoCD, Docker-outside-of-Docker, kubectl, Helm, k3d |
 
-All images include: **git**, **GitHub CLI**, **GitHub Copilot**, and **Claude Code** (VS Code extension + CLI).
+All images include: **git**, **GitHub CLI**, **GitHub Copilot**, and **Claude Code** (VS Code extension + CLI), plus the [`agent-personas`](features/src/agent-personas/README.md) feature — shared read-only review agents (**architect**, **devops**, **docs**, **security**, **qa**, **po**, **pm**) available in Copilot Chat and the Copilot CLI, so every dever-labs devcontainer reviews changes with the same set of lenses. Select one from the agent picker in VS Code, or run `copilot --agent <name> -p "..."` from the terminal.
 
 ## Available features
 

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# agent-personas-sync — runs at container start (postStartCommand).
+# Re-copies the canonical, image-pinned agent personas into ~/.copilot/agents,
+# overwriting any stale copies left in a shared volume by a previous image
+# version. Keeps every dever-labs devcontainer using this feature on the
+# same, consistent set of review personas.
+
+CANONICAL_DIR="/etc/agent-personas/agents"
+TARGET_DIR="${HOME}/.copilot/agents"
+
+mkdir -p "$TARGET_DIR"
+cp -f "$CANONICAL_DIR"/*.agent.md "$TARGET_DIR"/
