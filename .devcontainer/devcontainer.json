@@ -11,7 +11,7 @@
   },
 
   // Devcontainer CLI for `devcontainer build --workspace-folder images/<name>`, plus shellcheck for scripts
-  "postCreateCommand": "npm install -g @devcontainers/cli && sudo apt-get update && sudo apt-get install -y --no-install-recommends shellcheck && sudo rm -rf /var/lib/apt/lists/*",
+  "postCreateCommand": "sudo npm install -g @devcontainers/cli && sudo apt-get update && sudo apt-get install -y --no-install-recommends shellcheck && sudo rm -rf /var/lib/apt/lists/*",
 
   "remoteEnv": {
     "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
