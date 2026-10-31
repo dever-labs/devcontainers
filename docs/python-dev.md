@@ -96,7 +96,7 @@ helm upgrade --install my-api ./charts/my-api \
 
 ### AI agent use (Copilot coding agent / Claude Code)
 
-- GitHub auth comes from the shared `dever-labs-gh-config` volume; run `dever-gh-login` once ([docs/github-auth.md](github-auth.md)).
+- GitHub auth comes from the shared `dever-labs-gh-config` volume: run `gh auth login` once ([docs/github-auth.md](github-auth.md)).
 - Pylance gives agents precise type information for accurate refactoring.
 - Claude Code and Copilot extensions are pre-installed.
 - Agents can run `pytest`, validate API responses with `httpx`, and iterate without leaving the container.

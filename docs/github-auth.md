@@ -4,19 +4,15 @@ All dever-labs devcontainers share a single named Docker volume — `dever-labs-
 
 ## One-time setup
 
-Your GitHub token is kept in OpenBao (`https://vault.dever.dk`), not in an environment variable on your host.
-
-1. Create a GitHub token (https://github.com/settings/tokens) and note its expiry.
-2. Open any dever-labs devcontainer and run:
+1. Open any dever-labs devcontainer (any repo, any image).
+2. Inside the terminal, run:
    ```bash
-   dever-gh-login --store
+   gh auth login
    ```
-   It opens a browser to sign in with your Idently account, stores the token at `dever/users/<you>/github` in OpenBao, and logs `gh` in.
-3. Done — every other dever-labs container now has your credentials automatically.
+3. Follow the prompts (browser or token).
+4. Done — every other dever-labs container now has your credentials automatically.
 
-When the token expires, create a new one and run `dever-gh-login --store` again. Plain `dever-gh-login` re-logs `gh` in from the token already stored. No host environment variables are involved.
-
-`gh auth login` still works if you prefer it; credentials land in the same volume.
+Do not forward a token from your host with `remoteEnv` / `localEnv:GITHUB_TOKEN`: when it expires it overrides the working credentials in the volume. If you want to fetch tokens from a secret manager, do it from your own tooling and pipe the result into `gh auth login --with-token`; the images stay independent of any particular secret store.
 
 ## How it works
 
@@ -69,4 +65,4 @@ To clear stored credentials and start fresh:
 docker volume rm dever-labs-gh-config
 ```
 
-The next time you open a devcontainer, run `dever-gh-login` again.
+The next time you open a devcontainer, run `gh auth login` again.

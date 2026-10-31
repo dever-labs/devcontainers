@@ -112,7 +112,7 @@ go test -v -timeout 30m ./...
 
 ### AI agent use (Copilot coding agent / Claude Code)
 
-- GitHub auth comes from the shared `dever-labs-gh-config` volume; run `dever-gh-login` once ([docs/github-auth.md](github-auth.md)).
+- GitHub auth comes from the shared `dever-labs-gh-config` volume: run `gh auth login` once ([docs/github-auth.md](github-auth.md)).
 - Claude Code and Copilot extensions are pre-installed.
 - Agents can run `terraform plan`, validate Kubernetes manifests with `kubectl apply --dry-run=client`, and iterate on Helm charts against the local k3d cluster without leaving the container.
 - Forward cloud credentials via `remoteEnv` in service-repo devcontainer for fully autonomous provisioning agents.

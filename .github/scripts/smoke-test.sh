@@ -5,7 +5,7 @@ set -uo pipefail
 
 IMAGE="${1:?usage: smoke-test.sh <image-name>}"
 
-common=(git gh node npm copilot claude make devx bao dever-gh-login jq)
+common=(git gh node npm copilot claude make devx)
 cluster=(docker kubectl helm k3d k3d-cluster-init)
 
 case "$IMAGE" in

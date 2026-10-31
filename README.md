@@ -108,14 +108,13 @@ docker run --rm -it ghcr.io/dever-labs/devcontainers/dotnet-dev:latest bash
 All images mount a shared Docker volume — `dever-labs-gh-config` — to `~/.config/gh`. Authenticate once inside any container and every dever-labs devcontainer picks it up automatically, across rebuilds and repos.
 
 ```bash
-# Run once, inside any container: signs in to OpenBao with your Idently account
-# and logs gh in with the GitHub token stored there
-dever-gh-login
+# Run once, inside any container
+gh auth login
 ```
 
 Docker volumes are OS-agnostic — this works on macOS, Linux, and Windows without any host path configuration.
 
-Images no longer forward `GITHUB_TOKEN` from your host: an expired host token used to override the working credentials. Tokens live in OpenBao; see [docs/github-auth.md](docs/github-auth.md). Automated environments (Copilot coding agent) still provide `GITHUB_TOKEN` themselves, and `gh` honours it.
+Images no longer forward `GITHUB_TOKEN` from your host: an expired host token used to override the working credentials. See [docs/github-auth.md](docs/github-auth.md). Automated environments (Copilot coding agent) still provide `GITHUB_TOKEN` themselves, and `gh` honours it.
 
 Copilot CLI credentials persist the same way through a second shared volume, `dever-labs-copilot` (mounted at `~/.copilot`): run `copilot /login` once.
 

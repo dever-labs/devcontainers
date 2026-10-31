@@ -9,8 +9,6 @@ ARG FLUTTER_CHANNEL=stable
 ARG COPILOT_CLI_VERSION=1.0.98
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
 ARG CLAUDE_CODE_VERSION=2.1.302
-# renovate: datasource=github-releases depName=openbao/openbao extractVersion=^v(?<version>.+)$
-ARG BAO_VERSION=2.7.2
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
@@ -41,22 +39,6 @@ RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
     && ln -sf "$(npm prefix -g)/bin/copilot" /usr/local/bin/copilot \
     && ln -sf "$(npm prefix -g)/bin/claude" /usr/local/bin/claude \
     && rm -rf /var/lib/apt/lists/*
-
-# OpenBao CLI + dever-gh-login: GitHub tokens live in OpenBao (vault.dever.dk), not in host env vars.
-RUN set -eux; \
-    ARCH=$(dpkg --print-architecture); \
-    case "$ARCH" in amd64|arm64) ;; *) echo "Unsupported architecture: $ARCH" && exit 1 ;; esac; \
-    apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*; \
-    WORK=$(mktemp -d); cd "$WORK"; \
-    curl -fsSLO "https://github.com/openbao/openbao/releases/download/v${BAO_VERSION}/openbao_${BAO_VERSION}_linux_${ARCH}.tar.gz"; \
-    curl -fsSL "https://github.com/openbao/openbao/releases/download/v${BAO_VERSION}/checksums.txt" \
-      | grep " openbao_${BAO_VERSION}_linux_${ARCH}.tar.gz\$" | sha256sum -c; \
-    tar -xzf "openbao_${BAO_VERSION}_linux_${ARCH}.tar.gz" bao; \
-    install -m 0755 bao /usr/local/bin/bao; \
-    cd /; rm -rf "$WORK"
-
-COPY scripts/dever-gh-login /usr/local/bin/dever-gh-login
-RUN chmod +x /usr/local/bin/dever-gh-login
 
 # Download and install Flutter as the vscode user
 USER vscode
