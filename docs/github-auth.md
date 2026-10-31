@@ -12,7 +12,7 @@ All dever-labs devcontainers share a single named Docker volume — `dever-labs-
 3. Follow the prompts (browser or token).
 4. Done — every other dever-labs container now has your credentials automatically.
 
-Do not forward a token from your host with `remoteEnv` / `localEnv:GITHUB_TOKEN`: when it expires it overrides the working credentials in the volume. If you want to fetch tokens from a secret manager, do it from your own tooling and pipe the result into `gh auth login --with-token`; the images stay independent of any particular secret store.
+Do not forward a token from your host with `remoteEnv` / `localEnv:GITHUB_TOKEN`: when it expires it overrides the working credentials in the volume. To keep the token in your own OpenBao/Vault instead of typing it, add the optional [`openbao-secrets`](../features/src/openbao-secrets/README.md) feature and point it at your server with env vars. The images themselves stay independent of any secret store.
 
 ## How it works
 
