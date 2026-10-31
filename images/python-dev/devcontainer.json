@@ -47,8 +47,7 @@
 
   "remoteEnv": {
     // Put /usr/local/bin first so npm-installed copilot/claude shadow the VS Code extension binaries.
-    "PATH": "/usr/local/bin:${containerEnv:PATH}",
-    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+    "PATH": "/usr/local/bin:${containerEnv:PATH}"
   },
 
   "customizations": {

@@ -73,7 +73,7 @@ add a volume mount to your service repo's `devcontainer.json`:
 
 ### AI agent use (Copilot coding agent / Claude Code)
 
-- `GITHUB_TOKEN` is forwarded so `gh` and git work without prompts.
+- GitHub auth comes from the shared `dever-labs-gh-config` volume; run `dever-gh-login` once ([docs/github-auth.md](github-auth.md)).
 - Claude Code and Copilot extensions are pre-installed.
 - Agents can run `flutter test`, `flutter build`, `flutter analyze` without leaving the container.
 - The `flutter-pub-cache` volume keeps pub packages across rebuilds, speeding up agent workflows.

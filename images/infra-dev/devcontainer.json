@@ -52,8 +52,7 @@
   ],
 
   "remoteEnv": {
-    "PATH": "/usr/local/bin:${containerEnv:PATH}",
-    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+    "PATH": "/usr/local/bin:${containerEnv:PATH}"
   },
 
   "customizations": {

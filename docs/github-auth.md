@@ -4,13 +4,19 @@ All dever-labs devcontainers share a single named Docker volume — `dever-labs-
 
 ## One-time setup
 
-1. Open any dever-labs devcontainer (any repo, any image).
-2. Inside the terminal, run:
+Your GitHub token is kept in OpenBao (`https://vault.dever.dk`), not in an environment variable on your host.
+
+1. Create a GitHub token (https://github.com/settings/tokens) and note its expiry.
+2. Open any dever-labs devcontainer and run:
    ```bash
-   gh auth login
+   dever-gh-login --store
    ```
-3. Follow the prompts (browser or token).
-4. Done — every other dever-labs container now has your credentials automatically.
+   It opens a browser to sign in with your Idently account, stores the token at `dever/users/<you>/github` in OpenBao, and logs `gh` in.
+3. Done — every other dever-labs container now has your credentials automatically.
+
+When the token expires, create a new one and run `dever-gh-login --store` again. Plain `dever-gh-login` re-logs `gh` in from the token already stored. No host environment variables are involved.
+
+`gh auth login` still works if you prefer it; credentials land in the same volume.
 
 ## How it works
 
@@ -26,7 +32,7 @@ To use it in your own repo, add `"source=dever-labs-copilot,target=/home/vscode/
 
 ## AI agents
 
-When running as a GitHub Copilot coding agent or similar automated environment, `GITHUB_TOKEN` is forwarded from the platform via `remoteEnv`. The `gh` CLI treats this env var as the auth token (highest priority), so no manual login is needed for agents. The volume credentials are used as a fallback when `GITHUB_TOKEN` is not set.
+When running as a GitHub Copilot coding agent or similar automated environment, the platform provides `GITHUB_TOKEN` itself. The `gh` CLI treats this env var as the auth token (highest priority), so no manual login is needed for agents. Do not forward `GITHUB_TOKEN` from your host in `devcontainer.json`: when it expires it overrides the working credentials in the volume.
 
 ## Adding auth to a new service repo
 
@@ -36,10 +42,7 @@ For image-only devcontainers (no `docker-compose.yml`), add this to `.devcontain
 {
   "mounts": [
     "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume"
-  ],
-  "remoteEnv": {
-    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
-  }
+  ]
 }
 ```
 
@@ -66,4 +69,4 @@ To clear stored credentials and start fresh:
 docker volume rm dever-labs-gh-config
 ```
 
-The next time you open a devcontainer, run `gh auth login` again.
+The next time you open a devcontainer, run `dever-gh-login` again.

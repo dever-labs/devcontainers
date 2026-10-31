@@ -46,11 +46,6 @@ Add a `.devcontainer/devcontainer.json` that references the pre-built image. The
     "ghcr.io/dever-labs/devcontainers/features/local-ai:1": {}
   },
 
-  "remoteEnv": {
-    // Forward host GitHub token so AI agents can authenticate without re-login.
-    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
-  },
-
   // Runs on the HOST before the container starts. NOTE: this executes a script fetched from
   // `main` on your machine. Beyond personal use, pin the URL to a release tag or commit SHA
   // (replace `main`) and review the script first.
@@ -113,13 +108,14 @@ docker run --rm -it ghcr.io/dever-labs/devcontainers/dotnet-dev:latest bash
 All images mount a shared Docker volume — `dever-labs-gh-config` — to `~/.config/gh`. Authenticate once inside any container and every dever-labs devcontainer picks it up automatically, across rebuilds and repos.
 
 ```bash
-# Run once, inside any container
-gh auth login
+# Run once, inside any container: signs in to OpenBao with your Idently account
+# and logs gh in with the GitHub token stored there
+dever-gh-login
 ```
 
 Docker volumes are OS-agnostic — this works on macOS, Linux, and Windows without any host path configuration.
 
-For AI agents (Copilot coding agent, Claude Code), `GITHUB_TOKEN` is forwarded from the platform environment via `remoteEnv` and takes precedence over the volume credentials.
+Images no longer forward `GITHUB_TOKEN` from your host: an expired host token used to override the working credentials. Tokens live in OpenBao; see [docs/github-auth.md](docs/github-auth.md). Automated environments (Copilot coding agent) still provide `GITHUB_TOKEN` themselves, and `gh` honours it.
 
 Copilot CLI credentials persist the same way through a second shared volume, `dever-labs-copilot` (mounted at `~/.copilot`): run `copilot /login` once.
 
