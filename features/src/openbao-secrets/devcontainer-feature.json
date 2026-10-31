@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "name": "OpenBao / Vault secrets",
   "description": "Optional. Installs the OpenBao CLI and 'secrets-gh-login', which logs gh in with a GitHub token read from any OpenBao/Vault server you configure via environment variables. Nothing is configured by default.",
-
   "options": {
     "version": {
       "type": "string",
@@ -11,9 +10,15 @@
       "description": "OpenBao release to install (without the leading 'v')."
     }
   },
-
   "installsAfter": [
     "ghcr.io/devcontainers/features/common-utils",
     "ghcr.io/devcontainers/features/github-cli"
+  ],
+  "mounts": [
+    {
+      "source": "dever-labs-bao-session",
+      "target": "/home/vscode/.bao-session",
+      "type": "volume"
+    }
   ]
 }

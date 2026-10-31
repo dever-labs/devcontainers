@@ -21,5 +21,5 @@ Then run `secrets-gh-login` (or `secrets-gh-login --store` to save a new token f
 
 Notes:
 - `--store` uses `bao kv put`, which replaces the whole secret at that path; use a path dedicated to this token.
-- OIDC login opens a browser and listens on `localhost:8250` inside the container; VS Code forwards the port automatically. Use `BAO_LOGIN_ARGS` for other auth methods.
-- The token is held only in memory and the shared `gh` volume; it is never written into the image.
+- No browser runs in the container. OIDC login (default `-method=oidc skip_browser=true`) prints a URL: open it in your host browser. The callback goes to `localhost:8250`, which VS Code forwards to the container automatically; if you use another client, forward port 8250 yourself. Use `BAO_LOGIN_ARGS` for other auth methods.
+- The OpenBao session token is kept in the shared `dever-labs-bao-session` volume (`~/.vault-token` links into it), so it survives rebuilds until its TTL ends. The GitHub token is never written into the image.
