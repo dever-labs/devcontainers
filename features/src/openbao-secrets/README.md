@@ -18,3 +18,8 @@ Opt-in and generic: no image includes it, and it has no built-in server, mount o
 ```
 
 Then run `secrets-gh-login` (or `secrets-gh-login --store` to save a new token first). Optional: `BAO_SECRET_FIELD` (default `token`), `BAO_LOGIN_ARGS` (default `-method=oidc`). Credentials land in the shared `dever-labs-gh-config` volume like a normal `gh auth login`.
+
+Notes:
+- `--store` uses `bao kv put`, which replaces the whole secret at that path; use a path dedicated to this token.
+- OIDC login opens a browser and listens on `localhost:8250` inside the container; VS Code forwards the port automatically. Use `BAO_LOGIN_ARGS` for other auth methods.
+- The token is held only in memory and the shared `gh` volume; it is never written into the image.
