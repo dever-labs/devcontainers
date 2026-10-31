@@ -2,7 +2,7 @@
   "id": "openbao-secrets",
   "version": "1.0.0",
   "name": "OpenBao / Vault secrets",
-  "description": "Optional. Installs the OpenBao CLI and 'secrets-gh-login', which logs gh in with a GitHub token read from any OpenBao/Vault server you configure via environment variables. Nothing is configured by default.",
+  "description": "Optional. Installs the OpenBao CLI and 'secrets-gh-login', which logs gh in with a GitHub token read from an OpenBao/Vault server you configure via environment variables, using OIDC device-code sign-in with a refresh token shared by all devcontainers. Nothing is configured by default.",
   "options": {
     "version": {
       "type": "string",
@@ -20,5 +20,6 @@
       "target": "/home/vscode/.bao-session",
       "type": "volume"
     }
-  ]
+  ],
+  "postStartCommand": "secrets-gh-login --auto"
 }
