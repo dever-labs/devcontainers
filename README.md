@@ -16,7 +16,7 @@ All service repos reference an image from here. No per-repo builds, no drift bet
 | [`infra-dev`](docs/infra-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/infra-dev:latest` | Terraform, Azure CLI, AWS CLI, gcloud, Hetzner `hcloud`, ArgoCD, Flux | Docker-outside-of-Docker, kubectl, Helm, k3d |
 | [`node-dev`](docs/node-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/node-dev:latest` | Node.js 26 | Docker-outside-of-Docker, kubectl, Helm, k3d |
 
-All images include: **git**, **GitHub CLI**, **GitHub Copilot CLI**, and **Claude Code** (VS Code extensions + CLIs, installed with pinned versions), plus the [`agent-personas`](features/src/agent-personas/README.md) feature — shared read-only review agents (**architect**, **devops**, **docs**, **security**, **qa**, **po**, **pm**) available in Copilot Chat and the Copilot CLI, so every dever-labs devcontainer reviews changes with the same set of lenses. Select one from the agent picker in VS Code, or run `copilot --agent <name> -p "..."` from the terminal.
+All images include: **git**, **GitHub CLI**, **GitHub Copilot CLI**, and **Claude Code** (VS Code extensions + CLIs, installed with pinned versions), plus the [`agent-personas`](features/src/agent-personas/README.md) feature — shared read-only review agents (**architect**, **devops**, **docs**, **security**, **qa**, **po**, **pm**) available in Copilot Chat and the Copilot CLI, so every dever-labs devcontainer reviews changes with the same set of lenses. Select one from the agent picker in VS Code, or run `copilot --agent <name> -p "..."` from the terminal. Every image also includes [`devx`](https://github.com/dever-labs/devx) — a declarative local dev task orchestrator (`devx up`/`status`/`logs`/`doctor`, ...).
 
 ## Available features
 
@@ -26,7 +26,7 @@ Features are opt-in add-ons that layer on top of any base image. Add them to you
 |---------|-----------|--------------|
 | [`local-ai`](features/src/local-ai/README.md) | `ghcr.io/dever-labs/devcontainers/features/local-ai:1` | Aider, Codex CLI, Copilot CLI, Claude Code, Continue.dev — connected to host Ollama |
 | [`agent-personas`](features/src/agent-personas/README.md) | `ghcr.io/dever-labs/devcontainers/features/agent-personas:1` | Shared read-only review agents. Already in every image; add it only to repos that use a different base image. |
-| `devx` | `ghcr.io/dever-labs/devcontainers/features/devx:1` | Installs the `devx` developer orchestration CLI (`devx ai`, `devx dev`, `devx doctor`, ...). Option `version` selects the release tag. |
+| [`devx`](https://github.com/dever-labs/devx/blob/main/docs/install.md) | `ghcr.io/dever-labs/devx/cli:1` | Installs the `devx` developer orchestration CLI (`devx ai`, `devx dev`, `devx doctor`, ...). Published from [dever-labs/devx](https://github.com/dever-labs/devx), not this repo. Already in every image. Option `version` selects the release tag. |
 
 ## Using an image in a service repo
 
@@ -178,5 +178,5 @@ Edit `images/<name>/devcontainer.json` (or the shared `images/Dockerfile`) via a
 
 ## Repository scope
 
-The images under `images/` are the core product. `features/src/local-ai`, `features/src/devx` and the host scripts in `scripts/` (`ollama-setup`, `mlx-setup`, `ai-setup`, `dever`) are optional org tooling that happen to live here; they are not part of any base image and should be split into their own repository if they grow.
+The images under `images/` are the core product. `features/src/local-ai` and the host scripts in `scripts/` (`ollama-setup`, `mlx-setup`, `ai-setup`, `dever`) are optional org tooling that happen to live here; they are not part of any base image and should be split into their own repository if they grow. `devx` itself lives in [dever-labs/devx](https://github.com/dever-labs/devx) — only its feature *reference* is consumed here.
 

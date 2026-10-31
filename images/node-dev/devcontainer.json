@@ -22,7 +22,12 @@
       "version": "2.92"
     },
     // Shared review agent personas (architect, devops, docs, security, qa, po, pm) for Copilot Chat/CLI
-    "ghcr.io/dever-labs/devcontainers/features/agent-personas:1": {}
+    "ghcr.io/dever-labs/devcontainers/features/agent-personas:1": {},
+    // devx — declarative local dev task orchestrator (devx.yaml)
+    "ghcr.io/dever-labs/devx/cli:1": {
+      // renovate: datasource=github-releases depName=dever-labs/devx
+      "version": "v1.0.0"
+    }
   },
 
   "remoteEnv": {

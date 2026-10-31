@@ -1,0 +1,39 @@
+{
+  // Dev environment for working on this repo (images, features, CI scripts).
+  // Based on the published node-dev image, which already ships Node, Copilot CLI,
+  // Claude Code, k3d, and the agent-personas feature.
+  "name": "devcontainers",
+  "image": "ghcr.io/dever-labs/devcontainers/node-dev:latest",
+
+  "features": {
+    // Needed to build/test images locally (`devcontainer build`, `docker build`)
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+
+  // Devcontainer CLI for `devcontainer build --workspace-folder images/<name>`, plus shellcheck for scripts
+  "postCreateCommand": "sudo npm install -g @devcontainers/cli && sudo apt-get update && sudo apt-get install -y --no-install-recommends shellcheck && sudo rm -rf /var/lib/apt/lists/*",
+
+  "remoteEnv": {
+    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+  },
+
+  "mounts": [
+    // Shared credentials across all dever-labs devcontainers
+    "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume",
+    "source=dever-labs-copilot,target=/home/vscode/.copilot,type=volume"
+  ],
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "github.copilot",
+        "github.copilot-chat",
+        "anthropics.claude-code",
+        "ms-azuretools.vscode-docker",
+        "timonwong.shellcheck",
+        "redhat.vscode-yaml",
+        "editorconfig.editorconfig"
+      ]
+    }
+  }
+}
