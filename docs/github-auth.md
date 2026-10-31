@@ -12,6 +12,8 @@ All dever-labs devcontainers share a single named Docker volume — `dever-labs-
 3. Follow the prompts (browser or token).
 4. Done — every other dever-labs container now has your credentials automatically.
 
+Do not forward a token from your host with `remoteEnv` / `localEnv:GITHUB_TOKEN`: when it expires it overrides the working credentials in the volume. To keep the token in your own OpenBao/Vault instead of typing it, add the optional [`openbao-secrets`](../features/src/openbao-secrets/README.md) feature and point it at your server with env vars. The images themselves stay independent of any secret store.
+
 ## How it works
 
 The Docker volume `dever-labs-gh-config` is mounted to `~/.config/gh` inside every container. When `gh auth login` writes credentials to `~/.config/gh/hosts.yml`, they land in the shared volume. Any container that mounts the same volume reads those credentials on startup.
@@ -26,7 +28,7 @@ To use it in your own repo, add `"source=dever-labs-copilot,target=/home/vscode/
 
 ## AI agents
 
-When running as a GitHub Copilot coding agent or similar automated environment, `GITHUB_TOKEN` is forwarded from the platform via `remoteEnv`. The `gh` CLI treats this env var as the auth token (highest priority), so no manual login is needed for agents. The volume credentials are used as a fallback when `GITHUB_TOKEN` is not set.
+When running as a GitHub Copilot coding agent or similar automated environment, the platform provides `GITHUB_TOKEN` itself. The `gh` CLI treats this env var as the auth token (highest priority), so no manual login is needed for agents. Do not forward `GITHUB_TOKEN` from your host in `devcontainer.json`: when it expires it overrides the working credentials in the volume.
 
 ## Adding auth to a new service repo
 
@@ -36,10 +38,7 @@ For image-only devcontainers (no `docker-compose.yml`), add this to `.devcontain
 {
   "mounts": [
     "source=dever-labs-gh-config,target=/home/vscode/.config/gh,type=volume"
-  ],
-  "remoteEnv": {
-    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
-  }
+  ]
 }
 ```
 

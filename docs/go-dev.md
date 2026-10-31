@@ -86,7 +86,7 @@ go tool cover -html=coverage.out
 
 ### AI agent use (Copilot coding agent / Claude Code)
 
-- `GITHUB_TOKEN` is forwarded so `gh` and git work without prompts.
+- GitHub auth comes from the shared `dever-labs-gh-config` volume: run `gh auth login` once ([docs/github-auth.md](github-auth.md)).
 - `golang.go` extension gives agents precise symbol resolution and type info via gopls.
 - Claude Code and Copilot extensions are pre-installed.
 - Agents can run `go test ./...`, build binaries, and deploy to the local k3d cluster without leaving the container.

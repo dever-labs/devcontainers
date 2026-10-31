@@ -45,9 +45,7 @@
   ],
 
   "remoteEnv": {
-    // Forward host GitHub token so AI agents and CLI tools can authenticate without re-login
-    "PATH": "/usr/local/bin:${containerEnv:PATH}",
-    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+    "PATH": "/usr/local/bin:${containerEnv:PATH}"
   },
 
   "customizations": {

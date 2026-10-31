@@ -27,6 +27,7 @@ Features are opt-in add-ons that layer on top of any base image. Add them to you
 | [`local-ai`](features/src/local-ai/README.md) | `ghcr.io/dever-labs/devcontainers/features/local-ai:1` | Aider, Codex CLI, Copilot CLI, Claude Code, Continue.dev — connected to host Ollama |
 | [`agent-personas`](features/src/agent-personas/README.md) | `ghcr.io/dever-labs/devcontainers/features/agent-personas:1` | Shared read-only review agents. Already in every image; add it only to repos that use a different base image. |
 | [`devx`](https://github.com/dever-labs/devx/blob/main/docs/install.md) | `ghcr.io/dever-labs/devx/cli:1` | Installs the `devx` developer orchestration CLI (`devx ai`, `devx dev`, `devx doctor`, ...). Published from [dever-labs/devx](https://github.com/dever-labs/devx), not this repo. Already in every image. Option `version` selects the release tag. |
+| [`openbao-secrets`](features/src/openbao-secrets/README.md) | `ghcr.io/dever-labs/devcontainers/features/openbao-secrets:1` | Optional, generic: OpenBao CLI + `secrets-gh-login` to fetch a GitHub token from a server you configure via env vars. Not in any image; no built-in server. |
 
 ## Using an image in a service repo
 
@@ -44,11 +45,6 @@ Add a `.devcontainer/devcontainer.json` that references the pre-built image. The
     // Handles credential volumes, VS Code extensions, and Ollama config automatically.
     // Requires Ollama on the host: https://ollama.com
     "ghcr.io/dever-labs/devcontainers/features/local-ai:1": {}
-  },
-
-  "remoteEnv": {
-    // Forward host GitHub token so AI agents can authenticate without re-login.
-    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
   },
 
   // Runs on the HOST before the container starts. NOTE: this executes a script fetched from
@@ -119,7 +115,7 @@ gh auth login
 
 Docker volumes are OS-agnostic — this works on macOS, Linux, and Windows without any host path configuration.
 
-For AI agents (Copilot coding agent, Claude Code), `GITHUB_TOKEN` is forwarded from the platform environment via `remoteEnv` and takes precedence over the volume credentials.
+Images no longer forward `GITHUB_TOKEN` from your host: an expired host token used to override the working credentials. See [docs/github-auth.md](docs/github-auth.md). Automated environments (Copilot coding agent) still provide `GITHUB_TOKEN` themselves, and `gh` honours it.
 
 Copilot CLI credentials persist the same way through a second shared volume, `dever-labs-copilot` (mounted at `~/.copilot`): run `copilot /login` once.
 
