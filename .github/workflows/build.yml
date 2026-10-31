@@ -49,6 +49,8 @@ jobs:
   changes:
     name: Detect changes
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       images: ${{ steps.detect.outputs.images }}
       stamp: ${{ steps.detect.outputs.stamp }}
