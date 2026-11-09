@@ -49,8 +49,7 @@
   ],
 
   "remoteEnv": {
-    // Put cargo's bin on PATH for installed tools (sqlx-cli, cargo-chef, ...).
-    "PATH": "/usr/local/cargo/bin:/usr/local/bin:${containerEnv:PATH}"
+    "PATH": "/usr/local/bin:${containerEnv:PATH}"
   },
 
   "customizations": {
