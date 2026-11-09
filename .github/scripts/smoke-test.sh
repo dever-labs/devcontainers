@@ -11,6 +11,7 @@ cluster=(docker kubectl helm k3d k3d-cluster-init)
 case "$IMAGE" in
   dotnet-dev)   tools=("${common[@]}" "${cluster[@]}" dotnet) ;;
   go-dev)       tools=("${common[@]}" "${cluster[@]}" go) ;;
+  rust-dev)     tools=("${common[@]}" "${cluster[@]}" cargo rustc rustfmt clippy-driver) ;;
   python-dev)   tools=("${common[@]}" "${cluster[@]}" python3 pip3) ;;
   frontend-dev) tools=("${common[@]}" "${cluster[@]}") ;;
   node-dev)     tools=("${common[@]}" "${cluster[@]}") ;;
