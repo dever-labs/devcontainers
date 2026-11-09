@@ -1,0 +1,204 @@
+# Describes this repository in devhub (https://hub.dever.dk), dever-labs'
+# developer portal. devhub's GitHub discovery reads this file from the
+# default branch; docs come from docs/ (backstage.io/techdocs-ref).
+#   devhub/install  how to get it (Install card), <channel>:<id>, comma-separated
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: dev-environments
+  namespace: devtools
+  title: Dev environments
+  description: Shared devcontainer images and features, and containerized developer workstations.
+  annotations:
+    github.com/project-slug: dever-labs/devcontainers
+spec:
+  owner: group:devtools/engineering
+  domain: domain:devtools/devtools
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: devcontainers
+  namespace: devtools
+  title: devcontainers
+  description: >
+    Pre-built devcontainer images (images/) for humans and AI coding agents,
+    plus opt-in devcontainer features (features/src) under
+    ghcr.io/dever-labs/devcontainers/features.
+  annotations:
+    github.com/project-slug: dever-labs/devcontainers
+    backstage.io/techdocs-ref: dir:.
+  tags: [devcontainer, docker]
+spec:
+  type: tool
+  lifecycle: production
+  owner: group:devtools/engineering
+  system: system:devtools/dev-environments
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: devcontainer-dotnet-dev
+  namespace: devtools
+  title: dotnet-dev devcontainer image
+  description: ghcr.io/dever-labs/devcontainers/dotnet-dev — .NET 10 SDK, Docker-outside-of-Docker, kubectl, Helm, k3d.
+  annotations:
+    github.com/project-slug: dever-labs/devcontainers
+    backstage.io/source-location: url:https://github.com/dever-labs/devcontainers/tree/main/images/dotnet-dev
+    devhub/install: docker:ghcr.io/dever-labs/devcontainers/dotnet-dev:latest
+  links:
+    - url: https://github.com/dever-labs/devcontainers/pkgs/container/devcontainers%2Fdotnet-dev
+      title: Image on GHCR
+    - url: https://github.com/dever-labs/devcontainers/blob/main/docs/dotnet-dev.md
+      title: Image docs
+spec:
+  type: container-image
+  lifecycle: production
+  owner: group:devtools/engineering
+  system: system:devtools/dev-environments
+  dependsOn:
+    - component:devtools/devx
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: devcontainer-frontend-dev
+  namespace: devtools
+  title: frontend-dev devcontainer image
+  description: ghcr.io/dever-labs/devcontainers/frontend-dev — Node.js 26, Docker-outside-of-Docker, kubectl, Helm, k3d.
+  annotations:
+    github.com/project-slug: dever-labs/devcontainers
+    backstage.io/source-location: url:https://github.com/dever-labs/devcontainers/tree/main/images/frontend-dev
+    devhub/install: docker:ghcr.io/dever-labs/devcontainers/frontend-dev:latest
+  links:
+    - url: https://github.com/dever-labs/devcontainers/pkgs/container/devcontainers%2Ffrontend-dev
+      title: Image on GHCR
+    - url: https://github.com/dever-labs/devcontainers/blob/main/docs/frontend-dev.md
+      title: Image docs
+spec:
+  type: container-image
+  lifecycle: production
+  owner: group:devtools/engineering
+  system: system:devtools/dev-environments
+  dependsOn:
+    - component:devtools/devx
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: devcontainer-python-dev
+  namespace: devtools
+  title: python-dev devcontainer image
+  description: ghcr.io/dever-labs/devcontainers/python-dev — Python 3.14, Docker-outside-of-Docker, kubectl, Helm, k3d.
+  annotations:
+    github.com/project-slug: dever-labs/devcontainers
+    backstage.io/source-location: url:https://github.com/dever-labs/devcontainers/tree/main/images/python-dev
+    devhub/install: docker:ghcr.io/dever-labs/devcontainers/python-dev:latest
+  links:
+    - url: https://github.com/dever-labs/devcontainers/pkgs/container/devcontainers%2Fpython-dev
+      title: Image on GHCR
+    - url: https://github.com/dever-labs/devcontainers/blob/main/docs/python-dev.md
+      title: Image docs
+spec:
+  type: container-image
+  lifecycle: production
+  owner: group:devtools/engineering
+  system: system:devtools/dev-environments
+  dependsOn:
+    - component:devtools/devx
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: devcontainer-go-dev
+  namespace: devtools
+  title: go-dev devcontainer image
+  description: ghcr.io/dever-labs/devcontainers/go-dev — Go 1.26, Docker-outside-of-Docker, kubectl, Helm, k3d.
+  annotations:
+    github.com/project-slug: dever-labs/devcontainers
+    backstage.io/source-location: url:https://github.com/dever-labs/devcontainers/tree/main/images/go-dev
+    devhub/install: docker:ghcr.io/dever-labs/devcontainers/go-dev:latest
+  links:
+    - url: https://github.com/dever-labs/devcontainers/pkgs/container/devcontainers%2Fgo-dev
+      title: Image on GHCR
+    - url: https://github.com/dever-labs/devcontainers/blob/main/docs/go-dev.md
+      title: Image docs
+spec:
+  type: container-image
+  lifecycle: production
+  owner: group:devtools/engineering
+  system: system:devtools/dev-environments
+  dependsOn:
+    - component:devtools/devx
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: devcontainer-flutter-dev
+  namespace: devtools
+  title: flutter-dev devcontainer image
+  description: ghcr.io/dever-labs/devcontainers/flutter-dev — Flutter stable and Dart SDK (web, Linux and Android targets).
+  annotations:
+    github.com/project-slug: dever-labs/devcontainers
+    backstage.io/source-location: url:https://github.com/dever-labs/devcontainers/tree/main/images/flutter-dev
+    devhub/install: docker:ghcr.io/dever-labs/devcontainers/flutter-dev:latest
+  links:
+    - url: https://github.com/dever-labs/devcontainers/pkgs/container/devcontainers%2Fflutter-dev
+      title: Image on GHCR
+    - url: https://github.com/dever-labs/devcontainers/blob/main/docs/flutter-dev.md
+      title: Image docs
+spec:
+  type: container-image
+  lifecycle: production
+  owner: group:devtools/engineering
+  system: system:devtools/dev-environments
+  dependsOn:
+    - component:devtools/devx
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: devcontainer-infra-dev
+  namespace: devtools
+  title: infra-dev devcontainer image
+  description: ghcr.io/dever-labs/devcontainers/infra-dev — Terraform, Azure/AWS/gcloud/hcloud CLIs, ArgoCD, Flux, kubectl, Helm, k3d.
+  annotations:
+    github.com/project-slug: dever-labs/devcontainers
+    backstage.io/source-location: url:https://github.com/dever-labs/devcontainers/tree/main/images/infra-dev
+    devhub/install: docker:ghcr.io/dever-labs/devcontainers/infra-dev:latest
+  links:
+    - url: https://github.com/dever-labs/devcontainers/pkgs/container/devcontainers%2Finfra-dev
+      title: Image on GHCR
+    - url: https://github.com/dever-labs/devcontainers/blob/main/docs/infra-dev.md
+      title: Image docs
+spec:
+  type: container-image
+  lifecycle: production
+  owner: group:devtools/engineering
+  system: system:devtools/dev-environments
+  dependsOn:
+    - component:devtools/devx
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: devcontainer-node-dev
+  namespace: devtools
+  title: node-dev devcontainer image
+  description: ghcr.io/dever-labs/devcontainers/node-dev — Node.js 26, Docker-outside-of-Docker, kubectl, Helm, k3d.
+  annotations:
+    github.com/project-slug: dever-labs/devcontainers
+    backstage.io/source-location: url:https://github.com/dever-labs/devcontainers/tree/main/images/node-dev
+    devhub/install: docker:ghcr.io/dever-labs/devcontainers/node-dev:latest
+  links:
+    - url: https://github.com/dever-labs/devcontainers/pkgs/container/devcontainers%2Fnode-dev
+      title: Image on GHCR
+    - url: https://github.com/dever-labs/devcontainers/blob/main/docs/node-dev.md
+      title: Image docs
+spec:
+  type: container-image
+  lifecycle: production
+  owner: group:devtools/engineering
+  system: system:devtools/dev-environments
+  dependsOn:
+    - component:devtools/devx
