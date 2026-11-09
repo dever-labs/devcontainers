@@ -12,6 +12,7 @@ All service repos reference an image from here. No per-repo builds, no drift bet
 | [`frontend-dev`](docs/frontend-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/frontend-dev:latest` | Node.js 26 | Docker-outside-of-Docker, kubectl, Helm, k3d |
 | [`python-dev`](docs/python-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/python-dev:latest` | Python 3.14 | Docker-outside-of-Docker, kubectl, Helm, k3d |
 | [`go-dev`](docs/go-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/go-dev:latest` | Go 1.26 | Docker-outside-of-Docker, kubectl, Helm, k3d |
+| [`rust-dev`](docs/rust-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/rust-dev:latest` | Rust (stable) + cargo/clippy/rustfmt | Docker-outside-of-Docker, kubectl, Helm, k3d |
 | [`flutter-dev`](docs/flutter-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/flutter-dev:latest` | Flutter stable + Dart SDK | Web, Linux, Android targets (iOS requires macOS runner) |
 | [`infra-dev`](docs/infra-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/infra-dev:latest` | Terraform, Azure CLI, AWS CLI, gcloud, Hetzner `hcloud`, ArgoCD, Flux | Docker-outside-of-Docker, kubectl, Helm, k3d |
 | [`node-dev`](docs/node-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/node-dev:latest` | Node.js 26 | Docker-outside-of-Docker, kubectl, Helm, k3d |
@@ -37,7 +38,7 @@ Add a `.devcontainer/devcontainer.json` that references the pre-built image. The
 {
   "name": "my-service",
   // Replace with the image that matches your stack.
-  // Available: dotnet-dev, frontend-dev, node-dev, python-dev, go-dev, flutter-dev, infra-dev
+  // Available: dotnet-dev, frontend-dev, node-dev, python-dev, go-dev, rust-dev, flutter-dev, infra-dev
   "image": "ghcr.io/dever-labs/devcontainers/<name>:latest",
 
   "features": {
