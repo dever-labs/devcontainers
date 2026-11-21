@@ -5,7 +5,7 @@ set -uo pipefail
 
 IMAGE="${1:?usage: smoke-test.sh <image-name>}"
 
-common=(git gh node npm copilot claude make devx)
+common=(git gh node npm copilot claude codex make devx agent-personas)
 cluster=(docker kubectl helm k3d k3d-cluster-init)
 
 case "$IMAGE" in
@@ -30,8 +30,21 @@ for t in "${tools[@]}"; do
   fi
 done
 
-if [ ! -f /etc/agent-personas/agents/security.agent.md ]; then
-  echo "FAIL agent personas not installed" >&2
+for f in /etc/agent-personas/agents/security.agent.md \
+         /etc/agent-personas/rendered/copilot/security.agent.md \
+         /etc/agent-personas/rendered/claude/security.md \
+         /etc/agent-personas/rendered/codex/security.toml \
+         /etc/agent-personas/rendered/skills/agent-personas-setup/SKILL.md; do
+  if [ ! -f "$f" ]; then
+    echo "FAIL agent persona missing: $f" >&2
+    fail=1
+  fi
+done
+
+# The Claude personas' Bash guard must block writes and allow reads.
+guard() { printf '{"tool_input":{"command":"%s"}}' "$1" | agent-personas-guard 2>/dev/null; }
+if ! guard 'git diff main' || guard 'rm -rf /tmp/x'; then
+  echo "FAIL agent-personas-guard not enforcing read-only" >&2
   fail=1
 fi
 

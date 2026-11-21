@@ -1,0 +1,158 @@
+#!/usr/bin/env node
+// agent-personas-guard — Claude Code PreToolUse hook for the review personas.
+//
+// The personas keep Bash so they can run git diff/log, but Claude subagent files
+// can't scope Bash to specific commands. This hook runs before every Bash call a
+// persona makes and blocks (exit 2) anything that isn't a known read-only command,
+// so "read-only" is enforced rather than just requested.
+//
+// Extra commands (e.g. test runners for the qa persona) can be allowed with
+//   AGENT_PERSONAS_ALLOW="npm go dotnet"
+
+'use strict';
+
+const READ_ONLY = new Set([
+  'cat', 'head', 'tail', 'ls', 'tree', 'find', 'grep', 'egrep', 'fgrep', 'rg',
+  'wc', 'sort', 'uniq', 'cut', 'tr', 'diff', 'file', 'stat', 'pwd', 'echo',
+  'printf', 'jq', 'basename', 'dirname', 'realpath', 'which', 'true', 'cd', 'git',
+]);
+
+const GIT_READ_ONLY = new Set([
+  'diff', 'log', 'show', 'status', 'blame', 'grep', 'ls-files', 'ls-tree',
+  'rev-parse', 'rev-list', 'merge-base', 'cat-file', 'shortlog', 'describe',
+  'name-rev', 'branch', 'tag', 'remote',
+]);
+
+// git subcommands that are only read-only with listing flags.
+const GIT_LIST_FLAGS = {
+  branch: new Set(['-a', '--all', '-r', '--remotes', '-v', '-vv', '--list', '--show-current']),
+  tag: new Set(['-l', '--list']),
+  remote: new Set(['-v', '--verbose']),
+};
+
+// Flags that make an otherwise read-only command write files or run programs.
+const FORBIDDEN_FLAGS = {
+  find: /^-(delete|exec|execdir|ok|okdir|fprint|fprint0|fprintf|fls)$/,
+  sort: /^(-o|--output)/,
+  rg: /^--pre/,
+  git: /^(--output|-O|--open-files-in-pager)/,
+};
+
+// Redirections that can't write anything meaningful.
+const SAFE_REDIRECT = /^([12]?>&[12]|[12&]?>\s*\/dev\/null)$/;
+
+// Split a command line into segments of words, honouring quotes. Operators
+// (&&, ||, ;, |, &, newline) end a segment; output redirections are returned
+// separately so they can be checked.
+function parse(cmd) {
+  const segments = [];
+  const redirects = [];
+  let words = [];
+  let word = null;
+  const endWord = () => { if (word !== null) { words.push(word); word = null; } };
+  const endSegment = () => { endWord(); if (words.length) segments.push(words); words = []; };
+
+  for (let i = 0; i < cmd.length; i++) {
+    const c = cmd[i];
+    if (c === "'") {
+      const end = cmd.indexOf("'", i + 1);
+      if (end < 0) throw new Error('unterminated quote');
+      word = (word ?? '') + cmd.slice(i + 1, end);
+      i = end;
+    } else if (c === '"') {
+      let j = i + 1;
+      let s = '';
+      for (; j < cmd.length && cmd[j] !== '"'; j++) {
+        if (cmd[j] === '\\' && j + 1 < cmd.length) j++;
+        s += cmd[j];
+      }
+      if (j >= cmd.length) throw new Error('unterminated quote');
+      word = (word ?? '') + s;
+      i = j;
+    } else if (c === '\\' && i + 1 < cmd.length) {
+      word = (word ?? '') + cmd[++i];
+    } else if (/\s/.test(c) && c !== '\n') {
+      endWord();
+    } else if (c === '\n' || c === ';' || c === '|' || c === '&') {
+      const m = cmd.slice(i).match(/^&>\s*\S+/);
+      if (m) { redirects.push(m[0]); i += m[0].length - 1; continue; }
+      endSegment();
+      if ((c === '|' || c === '&') && cmd[i + 1] === c) i++;
+    } else if (c === '>' || c === '<') {
+      const m = cmd.slice(i).match(/^(>&\d|>>?\s*[^\s;&|]+|<\s*[^\s;&|]+)/);
+      if (!m) throw new Error('bad redirection');
+      // Attach a preceding fd number (2>...) to the redirect, not to the words.
+      const fd = word !== null && /^\d$/.test(word) ? word : '';
+      if (fd) word = null;
+      if (c === '>') redirects.push(fd + m[0]);
+      i += m[0].length - 1;
+    } else {
+      word = (word ?? '') + c;
+    }
+  }
+  endSegment();
+  return { segments, redirects };
+}
+
+function check(cmd) {
+  if (/`|\$\(|<\(|>\(/.test(cmd)) return 'command substitution is not allowed';
+
+  const { segments, redirects } = parse(cmd);
+  for (const r of redirects) {
+    if (!SAFE_REDIRECT.test(r)) return `output redirection "${r}" is not allowed`;
+  }
+
+  const extra = (process.env.AGENT_PERSONAS_ALLOW || '').split(/\s+/).filter(Boolean);
+  for (const words of segments) {
+    let [prog, ...args] = words;
+    if (/^[A-Za-z_][A-Za-z0-9_]*=/.test(prog)) return 'environment assignments are not allowed';
+    if (extra.includes(prog)) continue;
+    if (!READ_ONLY.has(prog)) return `"${prog}" is not a read-only command`;
+
+    const forbidden = FORBIDDEN_FLAGS[prog];
+    if (forbidden && args.some((a) => forbidden.test(a))) return `"${prog}" with these flags can modify files`;
+    if (prog === 'git') {
+      // Skip global options that don't change behaviour; reject -c (can set an executable pager).
+      while (args.length && args[0].startsWith('-')) {
+        const opt = args.shift();
+        if (opt === '-C') args.shift();
+        else if (opt !== '--no-pager' && !opt.startsWith('--git-dir') && !opt.startsWith('--work-tree')) {
+          return `git option "${opt}" is not allowed`;
+        }
+      }
+      const [sub, ...subArgs] = args;
+      if (!GIT_READ_ONLY.has(sub)) return `"git ${sub ?? ''}" is not a read-only git command`;
+      const list = GIT_LIST_FLAGS[sub];
+      if (list && subArgs.some((a) => !list.has(a))) return `"git ${sub}" is only allowed for listing`;
+    }
+  }
+  return null;
+}
+
+if (require.main !== module) {
+  module.exports = { check };
+  return;
+}
+
+let input = '';
+process.stdin.on('data', (d) => { input += d; });
+process.stdin.on('end', () => {
+  let cmd;
+  try {
+    cmd = JSON.parse(input).tool_input?.command ?? '';
+  } catch {
+    process.exit(0); // not a Bash tool call we understand; let Claude Code decide
+  }
+  let reason;
+  try {
+    reason = check(cmd);
+  } catch (e) {
+    reason = `could not parse command (${e.message})`;
+  }
+  if (reason) {
+    process.stderr.write(`Blocked by agent-personas: ${reason}. Review personas are read-only — use read-only commands such as git diff, git log, grep or cat.\n`);
+    process.exit(2);
+  }
+  process.exit(0);
+});
+

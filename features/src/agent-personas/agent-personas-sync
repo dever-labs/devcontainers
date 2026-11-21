@@ -2,13 +2,57 @@
 set -euo pipefail
 
 # agent-personas-sync — runs at container start (postStartCommand).
-# Re-copies the canonical, image-pinned agent personas into ~/.copilot/agents,
-# overwriting any stale copies left in a shared volume by a previous image
-# version. Keeps every dever-labs devcontainer using this feature on the
-# same, consistent set of review personas.
+# Re-copies the image-pinned, rendered agent personas into the user-level agents
+# directory of every supported CLI, overwriting stale copies left in a shared
+# volume by a previous image version and removing personas that have since been
+# retired. Keeps every dever-labs devcontainer using this feature on the same,
+# consistent set of review personas and shared skills across Copilot, Claude
+# Code and Codex.
 
-CANONICAL_DIR="/etc/agent-personas/agents"
-TARGET_DIR="${HOME}/.copilot/agents"
+RENDERED_DIR="/etc/agent-personas/rendered"
+MANIFEST=".agent-personas-manifest"
+LOCK=".agent-personas.lock"
 
-mkdir -p "$TARGET_DIR"
-cp -f "$CANONICAL_DIR"/*.agent.md "$TARGET_DIR"/
+# Version 1.0.0 synced Copilot agents without writing a manifest; this is the set
+# it installed, so personas retired since then are still cleaned up.
+LEGACY_COPILOT_MANIFEST="architect.agent.md devops.agent.md docs.agent.md pm.agent.md po.agent.md qa.agent.md security.agent.md"
+
+# sync <rendered subdir> <target dir> [legacy manifest]
+sync() {
+  local src="${RENDERED_DIR}/$1" target="$2" legacy="${3:-}" f previous
+  mkdir -p "$target"
+
+  # The target is often a Docker volume shared by several containers that may start
+  # at the same time with different image versions; serialise the update.
+  exec 9> "${target}/${LOCK}"
+  flock 9
+
+  if [ -f "${target}/${MANIFEST}" ]; then
+    previous="$(cat "${target}/${MANIFEST}")"
+  else
+    previous="$legacy"
+  fi
+
+  # Remove files this script installed previously but the current image no longer ships.
+  # Only manifest entries are touched, so the user's own agents are left alone.
+  # Entries are files (agents) or directories (skills).
+  for f in $previous; do
+    case "$f" in */*|.|..) continue ;; esac
+    if [ ! -e "${src}/${f}" ]; then rm -rf "${target:?}/${f}"; fi
+  done
+
+  for f in "$src"/*; do
+    rm -rf "${target:?}/$(basename "$f")"
+    cp -R "$f" "$target"/
+  done
+  ls "$src" > "${target}/${MANIFEST}.tmp"
+  mv -f "${target}/${MANIFEST}.tmp" "${target}/${MANIFEST}"
+
+  exec 9>&-
+}
+
+sync copilot "${HOME}/.copilot/agents" "$LEGACY_COPILOT_MANIFEST"
+sync claude  "${HOME}/.claude/agents"
+sync codex   "${HOME}/.codex/agents"
+sync skills  "${HOME}/.claude/skills"
+sync skills  "${HOME}/.agents/skills"

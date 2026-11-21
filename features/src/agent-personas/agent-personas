@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# agent-personas — sets up a repository's agent layer, following the dever-labs
+# convention (docs/agent-setup.md in dever-labs/devcontainers):
+#
+#   AGENTS.md                 repo instructions for every agent (Codex, Copilot read it natively)
+#   CLAUDE.md                 imports AGENTS.md for Claude Code
+#   .agents/skills/           repo skills (Codex, Copilot read it natively)
+#   .claude/skills            symlink to ../.agents/skills for Claude Code
+#   .agents/personas/         repo overlays for the shared review personas
+#
+# Never overwrites existing files: anything already present is reported and left alone.
+
+DOCS_URL="https://github.com/dever-labs/devcontainers/blob/main/docs/agent-setup.md"
+
+usage() {
+  cat <<EOF
+Usage: agent-personas init [DIR]
+
+Scaffold the repository agent layer in DIR (default: the git root of the current
+directory). Existing files are never overwritten. See ${DOCS_URL}
+EOF
+}
+
+created=()
+skipped=()
+
+# write <path> — create <path> from stdin unless it already exists.
+write() {
+  if [ -e "$1" ] || [ -L "$1" ]; then
+    skipped+=("$1 (exists)")
+    cat > /dev/null
+  else
+    mkdir -p "$(dirname "$1")"
+    cat > "$1"
+    created+=("$1")
+  fi
+}
+
+init() {
+  local root="${1:-}"
+  if [ -z "$root" ]; then
+    root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+  fi
+  cd "$root"
+
+  write AGENTS.md <<'EOF'
+# AGENTS.md
+
+<!--
+Instructions every AI agent (Claude Code, Codex, GitHub Copilot) reads in this repository.
+Keep it short (well under 200 lines): only facts an agent can't infer from the code.
+Multi-step procedures belong in skills (.agents/skills/), review guidance in persona
+overlays (.agents/personas/). Delete sections that don't apply.
+-->
+
+## Overview
+<!-- One or two sentences: what this repository is and who uses it. -->
+
+## Commands
+<!-- Exact commands to build, test, lint and run locally, e.g. `make test`. -->
+
+## Structure
+<!-- Where the important code lives, and anything non-obvious about the layout. -->
+
+## Conventions
+<!-- Rules that aren't enforced by tooling: naming, error handling, commit style, ... -->
+
+## Boundaries
+<!-- What agents must not do: files never to edit, commands never to run, approvals needed. -->
+EOF
+
+  if [ -e CLAUDE.md ]; then
+    if grep -q '@AGENTS.md' CLAUDE.md; then
+      skipped+=("CLAUDE.md (exists, already imports AGENTS.md)")
+    else
+      skipped+=("CLAUDE.md (exists; add a line '@AGENTS.md' so Claude Code reads AGENTS.md too)")
+    fi
+  else
+    write CLAUDE.md <<'EOF'
+@AGENTS.md
+EOF
+  fi
+
+  write .agents/skills/.gitkeep < /dev/null
+
+  if [ "$(readlink .claude/skills 2>/dev/null)" = "../.agents/skills" ]; then
+    skipped+=(".claude/skills (exists, already links to ../.agents/skills)")
+  elif [ -e .claude/skills ] || [ -L .claude/skills ]; then
+    skipped+=(".claude/skills (exists; move its skills to .agents/skills and replace it with a symlink to ../.agents/skills)")
+  else
+    mkdir -p .claude
+    ln -s ../.agents/skills .claude/skills
+    created+=(".claude/skills -> ../.agents/skills")
+  fi
+
+  write .agents/personas/README.md <<'EOF'
+# Persona overlays
+
+Repository-specific guidance for the shared review personas (architect, devops, docs,
+security, qa, po, pm) installed by the dever-labs `agent-personas` devcontainer feature.
+
+Each persona reads `.agents/personas/<name>.md` before reviewing, if it exists, and
+applies it on top of its generic instructions. Create only the overlays you need,
+e.g. `security.md`:
+
+```markdown
+# security — repository guidance
+
+## Context
+- Public API is served behind the gateway in infra/; auth is enforced there, not per handler.
+
+## Learned conventions
+- Secrets come from OpenBao via `secrets.Get()`; don't flag env-var reads in `cmd/` (local dev only). (2026-11-21, PR #123)
+```
+
+Personas propose new entries in the "Proposed learnings" section of their review.
+Add the ones you agree with here, through a normal PR, so every agent and every
+teammate gets the same, reviewed knowledge.
+EOF
+
+  echo "agent-personas init in ${root}"
+  local f
+  for f in "${created[@]}"; do echo "  created  $f"; done
+  for f in "${skipped[@]}"; do echo "  skipped  $f"; done
+  echo
+  echo "Next: fill in AGENTS.md, review the diff and commit it. Guide: ${DOCS_URL}"
+}
+
+case "${1:-}" in
+  init) shift; init "$@" ;;
+  -h|--help|help|"") usage ;;
+  *) usage >&2; exit 2 ;;
+esac

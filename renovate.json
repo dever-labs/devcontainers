@@ -32,8 +32,8 @@
       "groupName": null
     },
     {
-      "description": "Copilot CLI and Claude Code release often; batch them into one weekly PR",
-      "matchDepNames": ["@github/copilot", "@anthropic-ai/claude-code"],
+      "description": "Copilot CLI, Claude Code and Codex release often; batch them into one weekly PR",
+      "matchDepNames": ["@github/copilot", "@anthropic-ai/claude-code", "@openai/codex"],
       "groupName": "AI CLIs"
     }
   ]

@@ -9,7 +9,7 @@ Each image is defined as a `devcontainer.json` under `images/<name>/` and built 
 - `images/Dockerfile` — shared base layer (Node, AI CLIs, k3d) used by every image except `flutter-dev` (`infra-dev` builds the extra `infra` stage with ArgoCD, Flux, hcloud, gcloud); tool versions are pinned via ARGs, each preceded by a `# renovate:` comment so Renovate (`renovate.json`) can bump it — keep the annotation when editing (same `// renovate:` convention for feature versions in `images/*/devcontainer.json`)
 - `.github/workflows/pr-build.yml` — builds and smoke-tests affected images on PRs (`.github/scripts/smoke-test.sh`)
 - `.github/workflows/build.yml` — builds changed images on push to main (and weekly), pushes to GHCR with `latest` and immutable `<yyyymmdd>-<sha>` tags
-- `features/src/agent-personas/` — shared read-only review agent personas (architect, devops, docs, security, qa, po, pm) for GitHub Copilot Chat/CLI. Every base image includes this feature so all dever-labs devcontainers review changes with the same personas.
+- `features/src/agent-personas/` — shared read-only review agent personas (architect, devops, docs, security, qa, po, pm), rendered for GitHub Copilot (Chat/CLI), Claude Code and Codex from one source, plus shared skills and the `agent-personas init` scaffold for the repository layer (docs/agent-setup.md). Every base image includes this feature so all dever-labs devcontainers review changes with the same personas.
 
 ## Conventions
 

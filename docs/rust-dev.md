@@ -14,7 +14,7 @@ Pre-built devcontainer for Rust projects — services, CLIs, and gateways (e.g. 
 | git | latest | Source control |
 | GitHub CLI (`gh`) | 2.92 (patch auto-updates) | PRs, issues, releases, Actions |
 
-Plus the shared base: Node.js, GitHub Copilot CLI, Claude Code, the `agent-personas` review agents, and `devx`.
+Plus the shared base: Node.js, GitHub Copilot CLI, Claude Code, Codex CLI, the `agent-personas` review agents, and `devx`.
 
 ## VS Code extensions
 
