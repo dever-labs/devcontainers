@@ -27,7 +27,7 @@
       // renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>\d+\.\d+)\.\d+$
       "version": "2.92"
     },
-    // Shared review agent personas (architect, devops, docs, security, qa, po, pm) for Copilot Chat/CLI
+    // Shared review agent personas (architect, devops, docs, security, qa, po, pm) for Copilot, Claude Code and Codex
     "ghcr.io/dever-labs/devcontainers/features/agent-personas:1": {},
     // devx — declarative local dev task orchestrator (devx.yaml)
     "ghcr.io/dever-labs/devx/cli:1": {

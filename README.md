@@ -17,7 +17,7 @@ All service repos reference an image from here. No per-repo builds, no drift bet
 | [`infra-dev`](docs/infra-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/infra-dev:latest` | Terraform, Azure CLI, AWS CLI, gcloud, Hetzner `hcloud`, ArgoCD, Flux | Docker-outside-of-Docker, kubectl, Helm, k3d |
 | [`node-dev`](docs/node-dev.md) | `docker pull ghcr.io/dever-labs/devcontainers/node-dev:latest` | Node.js 26 | Docker-outside-of-Docker, kubectl, Helm, k3d |
 
-All images include: **git**, **GitHub CLI**, **GitHub Copilot CLI**, and **Claude Code** (VS Code extensions + CLIs, installed with pinned versions), plus the [`agent-personas`](features/src/agent-personas/README.md) feature — shared read-only review agents (**architect**, **devops**, **docs**, **security**, **qa**, **po**, **pm**) available in Copilot Chat and the Copilot CLI, so every dever-labs devcontainer reviews changes with the same set of lenses. Select one from the agent picker in VS Code, or run `copilot --agent <name> -p "..."` from the terminal. Every image also includes [`devx`](https://github.com/dever-labs/devx) — a declarative local dev task orchestrator (`devx up`/`status`/`logs`/`doctor`, ...).
+All images include: **git**, **GitHub CLI**, **GitHub Copilot CLI**, **Claude Code**, and **Codex CLI** (VS Code extensions + CLIs, installed with pinned versions), plus the [`agent-personas`](features/src/agent-personas/README.md) feature — shared read-only review agents (**architect**, **devops**, **docs**, **security**, **qa**, **po**, **pm**) available in GitHub Copilot (Chat + CLI), Claude Code, and Codex, so every dever-labs devcontainer reviews changes with the same set of lenses whichever agent you use. Select one from the agent picker in VS Code, or run `copilot --agent <name>` / `claude --agent <name>` from the terminal, or ask Codex to use the agent by name. Repositories add their own instructions, skills and persona overlays on top — run `agent-personas init` and see [docs/agent-setup.md](docs/agent-setup.md). Every image also includes [`devx`](https://github.com/dever-labs/devx) — a declarative local dev task orchestrator (`devx up`/`status`/`logs`/`doctor`, ...).
 
 ## Available features
 
@@ -99,7 +99,7 @@ The images are compatible with [GitHub Copilot coding agent](https://docs.github
 
 ### Claude Code
 
-Claude Code is pre-installed as a VS Code extension (`anthropics.claude-code`) and as the `claude` CLI; the GitHub Copilot CLI (`copilot`) is installed too. For headless agent use:
+Claude Code is pre-installed as a VS Code extension (`anthropics.claude-code`) and as the `claude` CLI; the GitHub Copilot CLI (`copilot`) and the Codex CLI (`codex`) are installed too. For headless agent use:
 
 ```bash
 docker run --rm -it ghcr.io/dever-labs/devcontainers/dotnet-dev:latest bash

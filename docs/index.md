@@ -1,7 +1,7 @@
 # dever-labs devcontainers
 
 Shared, pre-built devcontainer images for the dever-labs organisation — ready
-for human developers and AI coding agents (GitHub Copilot, Claude Code). Every
+for human developers and AI coding agents (GitHub Copilot, Claude Code, Codex). Every
 service repo references an image from here: no per-repo builds, no drift
 between environments.
 
@@ -18,7 +18,7 @@ between environments.
 | [`node-dev`](node-dev.md)         | Node.js 26                                                    |
 
 Each is published as `ghcr.io/dever-labs/devcontainers/<image>:latest`. All
-images include git, the GitHub CLI, the GitHub Copilot CLI, Claude Code, the
+images include git, the GitHub CLI, the GitHub Copilot CLI, Claude Code, Codex, the
 `agent-personas` review agents and [devx](https://github.com/dever-labs/devx);
 all but `flutter-dev` add Docker-outside-of-Docker, kubectl, Helm and k3d.
 
@@ -36,4 +36,6 @@ Reference the image from your repo's `.devcontainer/devcontainer.json`:
 The [README](https://github.com/dever-labs/devcontainers#readme) has the full
 template (features, mounts, Ollama host setup), the optional features and how
 CI builds and tags the images. Authentication inside the containers is
-covered in [GitHub authentication](github-auth.md).
+covered in [GitHub authentication](github-auth.md), and how a repository adds
+its own agent instructions, skills and persona overlays in
+[Agent setup for repositories](agent-setup.md).

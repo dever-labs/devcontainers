@@ -14,7 +14,7 @@ Pre-built devcontainer for general Node.js / TypeScript projects (services, CLIs
 | k3d | 5.8.3 (pinned in `images/Dockerfile`) | Local Kubernetes cluster — start it with `k3d-cluster-init` |
 | git | latest | Source control |
 | GitHub CLI (`gh`) | 2.92 (patch auto-updates) | PRs, issues, releases, Actions |
-| Copilot CLI, Claude Code | pinned in `images/Dockerfile` | AI agents |
+| Copilot CLI, Claude Code, Codex CLI | pinned in `images/Dockerfile` | AI agents |
 
 ## VS Code extensions
 

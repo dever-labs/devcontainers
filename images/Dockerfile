@@ -11,6 +11,8 @@ ARG NODE_MAJOR=26
 ARG COPILOT_CLI_VERSION=1.0.98
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
 ARG CLAUDE_CODE_VERSION=2.1.302
+# renovate: datasource=npm depName=@openai/codex
+ARG CODEX_CLI_VERSION=0.167.0
 # renovate: datasource=github-releases depName=k3d-io/k3d
 ARG K3D_VERSION=v5.8.3
 
@@ -23,9 +25,10 @@ RUN apt-get update \
        > /etc/apt/sources.list.d/nodesource.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends nodejs \
-    && npm install -g "@github/copilot@${COPILOT_CLI_VERSION}" "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" \
+    && npm install -g "@github/copilot@${COPILOT_CLI_VERSION}" "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" "@openai/codex@${CODEX_CLI_VERSION}" \
     && ln -sf "$(npm prefix -g)/bin/copilot" /usr/local/bin/copilot \
     && ln -sf "$(npm prefix -g)/bin/claude" /usr/local/bin/claude \
+    && ln -sf "$(npm prefix -g)/bin/codex" /usr/local/bin/codex \
     && rm -rf /var/lib/apt/lists/*
 
 RUN set -eux; \
