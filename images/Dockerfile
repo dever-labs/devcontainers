@@ -46,7 +46,11 @@ RUN chmod +x /usr/local/bin/k3d-cluster-init
 # volume is seeded from the image directory on first use, so creating them here owned by
 # vscode keeps a fresh volume writable; without it Docker creates it root-owned.
 RUN install -d -o vscode -g vscode /home/vscode/.config /home/vscode/.config/gh \
-      /home/vscode/.copilot /home/vscode/.claude /home/vscode/.codex
+      /home/vscode/.copilot /home/vscode/.claude
+
+# Keep all Claude Code state, including ~/.claude.json, in the dever-labs-claude volume. Set as
+# an image ENV (not remoteEnv) so it also applies to `docker exec` and other non-IDE processes.
+ENV CLAUDE_CONFIG_DIR=/home/vscode/.claude
 
 # infra-dev only (build.target = infra): GitOps, Kubernetes manifest tooling and extra cloud CLIs.
 FROM base AS infra
