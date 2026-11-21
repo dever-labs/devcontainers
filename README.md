@@ -118,7 +118,14 @@ Docker volumes are OS-agnostic — this works on macOS, Linux, and Windows witho
 
 Images no longer forward `GITHUB_TOKEN` from your host: an expired host token used to override the working credentials. See [docs/github-auth.md](docs/github-auth.md). Automated environments (Copilot coding agent) still provide `GITHUB_TOKEN` themselves, and `gh` honours it.
 
-Copilot CLI credentials persist the same way through a second shared volume, `dever-labs-copilot` (mounted at `~/.copilot`): run `copilot /login` once.
+The AI CLIs persist the same way, each through its own shared volume — log in once in any container:
+
+| Volume | Mount | Log in with |
+|--------|-------|-------------|
+| `dever-labs-copilot` | `~/.copilot` | `copilot /login` |
+| `dever-labs-claude` | `~/.claude` | `claude` (follow the prompts) |
+
+The images set `CLAUDE_CONFIG_DIR=/home/vscode/.claude`, so Claude Code keeps all of its state, including the `~/.claude.json` settings file that otherwise lives outside the volume, in `dever-labs-claude`. The mount points are created in the image owned by `vscode`, so a newly created volume is writable without a `chown` workaround. A volume created root-owned by an older image stays that way; fix it once with `sudo chown -R vscode:vscode ~/.claude` (or the affected directory).
 
 → [Full authentication guide](docs/github-auth.md)
 
