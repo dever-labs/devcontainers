@@ -13,6 +13,10 @@ Pre-built devcontainer for infrastructure and platform engineering — Terraform
 | Hetzner Cloud CLI (`hcloud`) | 1.70.1 | Hetzner resource management |
 | ArgoCD CLI | 3.5.5 | GitOps deployments |
 | Flux CLI | 2.9.6 | Flux GitOps bootstrap and reconciliation |
+| kustomize (standalone) | 5.8.3 | Build and validate Kustomize overlays (same binary CI uses) |
+| k9s | 0.51.0 | Terminal UI for Kubernetes clusters |
+| kubelogin (`kubectl oidc-login`) | 1.36.4 | OIDC login for clusters behind an identity provider |
+| yamllint | 1.38.0 | YAML linting for manifests and workflows |
 | Docker-outside-of-Docker | latest | Build images and run containers via the host Docker socket |
 | kubectl | 1.36 | Kubernetes cluster management |
 | Helm | 4.1 (patch auto-updates) | Helm chart installation and management |
@@ -20,7 +24,7 @@ Pre-built devcontainer for infrastructure and platform engineering — Terraform
 | git | latest | Source control |
 | GitHub CLI (`gh`) | 2.92 (patch auto-updates) | PRs, issues, releases, Actions |
 
-> ArgoCD, Flux and `hcloud` are installed in the `infra` stage of `images/Dockerfile` with checksum verification; bump the `ARGOCD_VERSION`, `FLUX_VERSION` and `HCLOUD_VERSION` ARGs deliberately.
+> ArgoCD, Flux, `hcloud`, kustomize, k9s, kubelogin and yamllint are installed in the `infra` stage of `images/Dockerfile`, the binaries with checksum verification. Renovate opens PRs for their version ARGs.
 
 ## VS Code extensions
 

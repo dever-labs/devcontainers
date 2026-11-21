@@ -42,7 +42,13 @@ RUN set -eux; \
 COPY scripts/k3d-cluster-init /usr/local/bin/k3d-cluster-init
 RUN chmod +x /usr/local/bin/k3d-cluster-init
 
-# infra-dev only (build.target = infra): GitOps and extra cloud CLIs.
+# Mount points for the shared credential volumes (see images/*/devcontainer.json). A named
+# volume is seeded from the image directory on first use, so creating them here owned by
+# vscode keeps a fresh volume writable; without it Docker creates it root-owned.
+RUN install -d -o vscode -g vscode /home/vscode/.config /home/vscode/.config/gh \
+      /home/vscode/.copilot /home/vscode/.claude /home/vscode/.codex
+
+# infra-dev only (build.target = infra): GitOps, Kubernetes manifest tooling and extra cloud CLIs.
 FROM base AS infra
 # renovate: datasource=github-releases depName=argoproj/argo-cd
 ARG ARGOCD_VERSION=v3.5.5
@@ -69,6 +75,51 @@ RUN set -eux; \
     tar -xzf "hcloud-linux-${ARCH}.tar.gz" hcloud; \
     install -m 0755 hcloud /usr/local/bin/hcloud; \
     cd /; rm -rf "$WORK"
+
+# Kubernetes manifest tooling: standalone kustomize, k9s, kubelogin (kubectl oidc-login) and yamllint.
+# renovate: datasource=github-releases depName=kubernetes-sigs/kustomize extractVersion=^kustomize/v(?<version>.+)$
+ARG KUSTOMIZE_VERSION=5.8.3
+# renovate: datasource=github-releases depName=derailed/k9s extractVersion=^v(?<version>.+)$
+ARG K9S_VERSION=0.51.0
+# renovate: datasource=github-releases depName=int128/kubelogin extractVersion=^v(?<version>.+)$
+ARG KUBELOGIN_VERSION=1.36.4
+# renovate: datasource=pypi depName=yamllint
+ARG YAMLLINT_VERSION=1.38.0
+
+RUN set -eux; \
+    ARCH=$(dpkg --print-architecture); \
+    WORK=$(mktemp -d); cd "$WORK"; \
+    # kustomize
+    base="https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}"; \
+    f="kustomize_v${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz"; \
+    curl -fsSLO "$base/$f"; \
+    curl -fsSL "$base/checksums.txt" | grep " $f\$" | sha256sum -c; \
+    tar -xzf "$f" kustomize; \
+    install -m 0755 kustomize /usr/local/bin/kustomize; \
+    # k9s
+    base="https://github.com/derailed/k9s/releases/download/v${K9S_VERSION}"; \
+    f="k9s_Linux_${ARCH}.tar.gz"; \
+    curl -fsSLO "$base/$f"; \
+    curl -fsSL "$base/checksums.sha256" | grep " $f\$" | sha256sum -c; \
+    tar -xzf "$f" k9s; \
+    install -m 0755 k9s /usr/local/bin/k9s; \
+    # kubelogin, installed as the kubectl oidc-login plugin
+    base="https://github.com/int128/kubelogin/releases/download/v${KUBELOGIN_VERSION}"; \
+    f="kubelogin_linux_${ARCH}.zip"; \
+    curl -fsSLO "$base/$f"; \
+    curl -fsSLO "$base/$f.sha256"; \
+    sha256sum -c "$f.sha256"; \
+    unzip -q "$f" kubelogin; \
+    install -m 0755 kubelogin /usr/local/bin/kubectl-oidc_login; \
+    cd /; rm -rf "$WORK"
+
+# yamllint in its own venv (Ubuntu 24.04 blocks global pip installs)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends python3-venv \
+    && rm -rf /var/lib/apt/lists/* \
+    && python3 -m venv /opt/yamllint \
+    && /opt/yamllint/bin/pip install --no-cache-dir "yamllint==${YAMLLINT_VERSION}" \
+    && ln -sf /opt/yamllint/bin/yamllint /usr/local/bin/yamllint
 
 # Google Cloud CLI from Google's signed apt repository
 RUN curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/google-cloud.gpg \

@@ -53,3 +53,9 @@ RUN flutter config --no-analytics \
     && flutter --version
 
 USER root
+
+# Mount points for the shared credential volumes (see devcontainer.json). A named volume is
+# seeded from the image directory on first use, so creating them here owned by vscode keeps
+# a fresh volume writable; without it Docker creates it root-owned.
+RUN install -d -o vscode -g vscode /home/vscode/.config /home/vscode/.config/gh \
+      /home/vscode/.copilot /home/vscode/.claude /home/vscode/.codex

@@ -22,9 +22,9 @@ Docker named volumes are host-OS-agnostic — this works identically on **macOS*
 
 ## Copilot CLI
 
-Every image also mounts a second shared volume, `dever-labs-copilot`, at `~/.copilot`. Run `copilot /login` once inside any container and the Copilot CLI stays authenticated in all of them. The `agent-personas` feature keeps its review agents in this directory too.
+Every image also mounts a shared volume per AI CLI: `dever-labs-copilot` at `~/.copilot`, `dever-labs-claude` at `~/.claude` and `dever-labs-codex` at `~/.codex`. Log in once inside any container (`copilot /login`, `claude`, `codex login`) and the CLI stays authenticated in all of them. The images set `CLAUDE_CONFIG_DIR=/home/vscode/.claude` so Claude Code's settings file is kept in the volume too. The `agent-personas` feature keeps its review agents in these directories as well.
 
-To use it in your own repo, add `"source=dever-labs-copilot,target=/home/vscode/.copilot,type=volume"` to `mounts` (same `<remoteUser>` note as below).
+Repos that use a dever-labs image inherit these mounts — don't repeat them. Repos on a different base image can add the same `source=dever-labs-<name>,target=/home/vscode/<dir>,type=volume` entries to `mounts` (same `<remoteUser>` note as below).
 
 ## AI agents
 
